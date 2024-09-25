@@ -2,6 +2,11 @@ package models
 
 import "time"
 
+type QueryParams struct {
+	Limit  int
+	Offset int
+}
+
 type User struct {
 	ID         int
 	UserTypeID int

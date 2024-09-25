@@ -1,4 +1,4 @@
-package postgresrepo
+package postgresrepository
 
 import (
 	"context"
@@ -7,15 +7,15 @@ import (
 	"github.com/mhcodev/fake_store_api/internal/models"
 )
 
-type PostgresUserRepo struct {
+type PostgresUserRepository struct {
 	conn *pgxpool.Pool
 }
 
-func NewPostgresUserRepo(conn *pgxpool.Pool) *PostgresUserRepo {
-	return &PostgresUserRepo{conn: conn}
+func NewPostgresUserRepository(conn *pgxpool.Pool) *PostgresUserRepository {
+	return &PostgresUserRepository{conn: conn}
 }
 
-func (p *PostgresUserRepo) GetUsersByParams() ([]models.User, error) {
+func (p *PostgresUserRepository) GetUsersByParams(ctx context.Context, params models.QueryParams) ([]models.User, error) {
 
 	query := `select
 		id,

@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
+	"github.com/mhcodev/fake_store_api/internal/container"
 	"github.com/mhcodev/fake_store_api/internal/repository"
 )
 
@@ -27,15 +29,15 @@ func main() {
 		defer conn.Close()
 	}
 
-	users, err := dbRepo.UserRepository.GetUsersByParams()
+	app := fiber.New()
 
-	if err != nil {
-		fmt.Println("Error: ", err)
-		return
-	}
+	containerService := container.NewContainerService(dbRepo)
+	ch := container.NewContainerHandler(containerService)
 
-	for _, v := range users {
-		fmt.Println(v.Name)
-	}
+	fmt.Println(ch)
 
+	setupRoutes(app, ch)
+
+	// Start the server
+	log.Fatal(app.Listen(":3000"))
 }
