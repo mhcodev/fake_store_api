@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"errors"
 
 	"github.com/mhcodev/fake_store_api/internal/models"
 	"github.com/mhcodev/fake_store_api/internal/repository/repositories"
@@ -27,4 +28,12 @@ func (s *UserService) GetUsersByParams(ctx context.Context, params models.QueryP
 	}
 
 	return s.userRepository.GetUsersByParams(ctx, params)
+}
+
+func (s *UserService) GetUserByID(ctx context.Context, ID int) (models.User, error) {
+	if ID < 1 {
+		return models.User{}, errors.New("user id is not valid")
+	}
+
+	return s.userRepository.GetUserByID(ctx, ID)
 }

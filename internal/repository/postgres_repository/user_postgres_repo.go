@@ -30,7 +30,7 @@ func (p *PostgresUserRepository) GetUsersByParams(ctx context.Context, params mo
 		updated_at
 	from tb_users`
 
-	rows, err := p.conn.Query(context.Background(), query)
+	rows, err := p.conn.Query(ctx, query)
 
 	if err != nil {
 		return []models.User{}, err
@@ -64,4 +64,43 @@ func (p *PostgresUserRepository) GetUsersByParams(ctx context.Context, params mo
 	}
 
 	return users, nil
+}
+
+func (p *PostgresUserRepository) GetUserByID(ctx context.Context, ID int) (models.User, error) {
+
+	query := `SELECT
+		id,
+		user_type_id,
+		name,
+		email,
+		password,
+		avatar,
+		phone,
+		status,
+		created_at,
+		updated_at
+	FROM tb_users
+	WHERE id = $1`
+
+	row := p.conn.QueryRow(ctx, query, ID)
+	var user models.User
+
+	err := row.Scan(
+		&user.ID,
+		&user.UserTypeID,
+		&user.Name,
+		&user.Email,
+		&user.Password,
+		&user.Avatar,
+		&user.Phone,
+		&user.Status,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+
+	if err != nil {
+		return user, err
+	}
+
+	return user, nil
 }

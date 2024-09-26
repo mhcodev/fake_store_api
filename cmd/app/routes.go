@@ -13,5 +13,6 @@ func setupRoutes(app *fiber.App, ch *container.ContainerHandler) {
 	// ============= User routes ================
 	v1.Route("/user", func(router fiber.Router) {
 		router.Get("/", ch.UserHandler.GetUsersByParams)
+		router.Get("/:id", ch.UserHandler.GetUserByID)
 	})
 }
