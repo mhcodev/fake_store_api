@@ -8,14 +8,14 @@ type QueryParams struct {
 }
 
 type User struct {
-	ID         int
-	UserTypeID int
-	Name       string
-	Email      string
-	Password   string
-	Avatar     string
-	Phone      string
-	Status     int
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
+	ID         int       `json:"id"`
+	UserTypeID int       `json:"userTypeID"`
+	Name       string    `json:"name"`
+	Email      string    `json:"email"`
+	Password   string    `json:"password"`
+	Avatar     string    `json:"avatar"`
+	Phone      string    `json:"phone"`
+	Status     int       `json:"status"`
+	CreatedAt  time.Time `json:"createdAt"`
+	UpdatedAt  time.Time `json:"updatedAt"`
 }
