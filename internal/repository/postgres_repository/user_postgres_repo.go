@@ -2,6 +2,7 @@ package postgresrepository
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/mhcodev/fake_store_api/internal/models"
@@ -105,4 +106,28 @@ func (p *PostgresUserRepository) GetUserByID(ctx context.Context, ID int) (model
 	}
 
 	return user, nil
+}
+
+func (p *PostgresUserRepository) UserEmailIsAvailable(ctx context.Context, email string) (bool, error) {
+
+	query := `SELECT
+		email
+	FROM tb_users
+	WHERE LOWER(email) = $1
+	LIMIT 1`
+
+	row := p.conn.QueryRow(ctx, query, email)
+	var userEmail string
+
+	err := row.Scan(&userEmail)
+
+	fmt.Println("email: ", email)
+	fmt.Println("userEmail: ", userEmail)
+	fmt.Println("err: ", err)
+
+	if err != nil {
+		return true, nil
+	}
+
+	return false, nil
 }

@@ -2,10 +2,12 @@ package handlers
 
 import (
 	"strconv"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/mhcodev/fake_store_api/internal/models"
 	"github.com/mhcodev/fake_store_api/internal/services"
+	"github.com/mhcodev/fake_store_api/internal/util"
 )
 
 type UserHandler struct {
@@ -60,4 +62,41 @@ func (h *UserHandler) GetUserByID(c *fiber.Ctx) error {
 
 	// Return user as JSON
 	return c.JSON(users)
+}
+
+type UserEmailIsAvailableRequest struct {
+	Email string `json:"email"`
+}
+
+func (h *UserHandler) UserEmailIsAvailable(c *fiber.Ctx) error {
+	var request UserEmailIsAvailableRequest
+	messages := make([]string, 0)
+
+	// Parse the request body into the struct
+	if err := c.BodyParser(&request); err != nil {
+		messages = append(messages, "Error processing request")
+		return util.ErrorReponse(c, fiber.StatusInternalServerError, nil, messages)
+	}
+
+	if request.Email == "" {
+		messages = append(messages, "email is empty, ensure you send an email")
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+	}
+
+	email := strings.ToLower(request.Email)
+
+	if email == "none" {
+		messages = append(messages, "email is empty, ensure you send an email")
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+	}
+
+	response, err := h.UserService.UserEmailIsAvailable(c.Context(), email)
+
+	if err != nil {
+		messages = append(messages, err.Error())
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+	}
+
+	// Return user as JSON
+	return util.SuccessReponse(c, response)
 }

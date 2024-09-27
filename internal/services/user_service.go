@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"regexp"
 
 	"github.com/mhcodev/fake_store_api/internal/models"
 	"github.com/mhcodev/fake_store_api/internal/repository/repositories"
@@ -36,4 +37,37 @@ func (s *UserService) GetUserByID(ctx context.Context, ID int) (models.User, err
 	}
 
 	return s.userRepository.GetUserByID(ctx, ID)
+}
+
+func (s *UserService) UserEmailIsAvailable(ctx context.Context, email string) (map[string]interface{}, error) {
+	// Define a regular expression for validating email addresses
+	emailRegex := `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
+
+	// Compile the regular expression
+	rgx := regexp.MustCompile(emailRegex)
+
+	// Check if the email matches the pattern
+	emailIsValid := rgx.MatchString(email)
+
+	response := make(map[string]interface{})
+
+	if !emailIsValid {
+		response["isAvailable"] = false
+		response["formatIsOK"] = false
+		return response, errors.New("email provided is not valid")
+	}
+
+	IsVailable, err := s.userRepository.UserEmailIsAvailable(ctx, email)
+
+	if err != nil {
+		response["isAvailable"] = false
+		response["formatIsOK"] = false
+		response["error"] = err.Error()
+		return response, err
+	}
+
+	response["isAvailable"] = IsVailable
+	response["formatIsOK"] = true
+
+	return response, nil
 }
