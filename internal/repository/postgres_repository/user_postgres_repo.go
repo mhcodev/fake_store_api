@@ -17,7 +17,7 @@ func NewPostgresUserRepository(conn *pgxpool.Pool) *PostgresUserRepository {
 
 func (p *PostgresUserRepository) GetUsersByParams(ctx context.Context, params models.QueryParams) ([]models.User, error) {
 
-	query := `select
+	query := `SELECT
 		id,
 		user_type_id,
 		name,
@@ -28,9 +28,11 @@ func (p *PostgresUserRepository) GetUsersByParams(ctx context.Context, params mo
 		status,
 		created_at,
 		updated_at
-	from tb_users`
+	from tb_users
+	LIMIT $1
+	OFFSET $2`
 
-	rows, err := p.conn.Query(ctx, query)
+	rows, err := p.conn.Query(ctx, query, params.Limit, params.Offset)
 
 	if err != nil {
 		return []models.User{}, err

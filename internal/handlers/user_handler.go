@@ -18,7 +18,23 @@ func NewUserHandler(userService *services.UserService) *UserHandler {
 
 func (h *UserHandler) GetUsersByParams(c *fiber.Ctx) error {
 	// Call the service to get user details
-	users, err := h.UserService.GetUsersByParams(c.Context(), models.QueryParams{})
+	var params models.QueryParams
+	limit, err := strconv.Atoi(c.Query("limit", "0"))
+
+	if err != nil {
+		limit = 15
+	}
+
+	offset, err := strconv.Atoi(c.Query("offset", "0"))
+
+	if err != nil {
+		offset = 0
+	}
+
+	params.Limit = limit
+	params.Offset = offset
+
+	users, err := h.UserService.GetUsersByParams(c.Context(), params)
 
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
