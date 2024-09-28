@@ -17,5 +17,6 @@ func setupRoutes(app *fiber.App, ch *container.ContainerHandler) {
 		router.Post("/email/is-available", ch.UserHandler.UserEmailIsAvailable)
 		router.Post("/", ch.UserHandler.CreateUser)
 		router.Put("/:id", ch.UserHandler.UpdateUser)
+		router.Delete("/:id", ch.UserHandler.DeleteUser)
 	})
 }

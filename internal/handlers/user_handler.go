@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -75,7 +76,7 @@ func (h *UserHandler) UserEmailIsAvailable(c *fiber.Ctx) error {
 	// Parse the request body into the struct
 	if err := c.BodyParser(&request); err != nil {
 		messages = append(messages, "Error processing request")
-		return util.ErrorReponse(c, fiber.StatusInternalServerError, nil, messages)
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
 	}
 
 	if request.Email == "" {
@@ -112,7 +113,7 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 	// Parse the request body into the struct
 	if err := c.BodyParser(&request); err != nil {
 		messages = append(messages, "Error processing request")
-		return util.ErrorReponse(c, fiber.StatusInternalServerError, nil, messages)
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
 	}
 
 	user := request.User
@@ -128,7 +129,7 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 
 	if err != nil {
 		messages = append(messages, err.Error())
-		return util.ErrorReponse(c, fiber.StatusInternalServerError, nil, messages)
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
 	}
 
 	response := make(map[string]interface{})
@@ -149,21 +150,21 @@ func (h *UserHandler) UpdateUser(c *fiber.Ctx) error {
 	// Parse the request body into the struct
 	if err := c.BodyParser(&request); err != nil {
 		messages = append(messages, "Error processing request")
-		return util.ErrorReponse(c, fiber.StatusInternalServerError, nil, messages)
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
 	}
 
 	userID, err := strconv.Atoi(c.Params("id", "0"))
 
 	if err != nil {
 		messages = append(messages, "user id is not valid")
-		return util.ErrorReponse(c, fiber.StatusInternalServerError, nil, messages)
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
 	}
 
 	_, err = h.UserService.GetUserByID(c.Context(), userID)
 
 	if err != nil {
 		messages = append(messages, "user doesn't exist")
-		return util.ErrorReponse(c, fiber.StatusInternalServerError, nil, messages)
+		return util.ErrorReponse(c, fiber.StatusNotFound, nil, messages)
 	}
 
 	user := request.User
@@ -180,11 +181,41 @@ func (h *UserHandler) UpdateUser(c *fiber.Ctx) error {
 
 	if err != nil {
 		messages = append(messages, err.Error())
-		return util.ErrorReponse(c, fiber.StatusInternalServerError, nil, messages)
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
 	}
 
 	response := make(map[string]interface{})
 	response["user"] = user
+
+	// Return user as JSON
+	return util.SuccessReponse(c, response)
+}
+
+func (h *UserHandler) DeleteUser(c *fiber.Ctx) error {
+	messages := make([]string, 0)
+	userID, err := strconv.Atoi(c.Params("id", "0"))
+
+	if err != nil {
+		messages = append(messages, "user id is not valid")
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+	}
+
+	_, err = h.UserService.GetUserByID(c.Context(), userID)
+
+	if err != nil {
+		messages = append(messages, "user doesn't exist")
+		return util.ErrorReponse(c, fiber.StatusNotFound, nil, messages)
+	}
+
+	err = h.UserService.DeletedUser(c.Context(), userID)
+
+	if err != nil {
+		messages = append(messages, err.Error())
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+	}
+
+	response := make(map[string]interface{})
+	response["msg"] = fmt.Sprintf("user %d deleted", userID)
 
 	// Return user as JSON
 	return util.SuccessReponse(c, response)

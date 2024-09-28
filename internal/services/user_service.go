@@ -99,3 +99,17 @@ func (s *UserService) UpdateUser(ctx context.Context, user *models.User) error {
 
 	return nil
 }
+
+func (s *UserService) DeletedUser(ctx context.Context, userID int) error {
+	ok, err := s.userRepository.DeleteUser(ctx, userID)
+
+	if err != nil {
+		return err
+	}
+
+	if !ok {
+		return errors.New("user was not deleted, check your user data")
+	}
+
+	return nil
+}

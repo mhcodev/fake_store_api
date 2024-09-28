@@ -84,7 +84,7 @@ func (p *PostgresUserRepository) GetUserByID(ctx context.Context, ID int) (model
 		created_at,
 		updated_at
 	FROM tb_users
-	WHERE id = $1`
+	WHERE id = $1 and status = 1`
 
 	row := p.conn.QueryRow(ctx, query, ID)
 	var user models.User
@@ -196,6 +196,32 @@ func (p *PostgresUserRepository) UpdateUser(ctx context.Context, user *models.Us
 
 	if rowsAffected <= 0 {
 		return false, errors.New("no users were updated")
+	}
+
+	return true, nil
+}
+
+func (p *PostgresUserRepository) DeleteUser(ctx context.Context, userID int) (bool, error) {
+	query := `UPDATE tb_users
+	SET status = $1,
+		updated_at = now()
+	WHERE id = $2`
+
+	statusDeletedCode := 0
+
+	commandTag, err := p.conn.Exec(ctx, query,
+		statusDeletedCode,
+		userID,
+	)
+
+	rowsAffected := commandTag.RowsAffected()
+
+	if err != nil {
+		return false, err
+	}
+
+	if rowsAffected <= 0 {
+		return false, errors.New("no users were deleted")
 	}
 
 	return true, nil
