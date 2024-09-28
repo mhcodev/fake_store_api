@@ -11,4 +11,5 @@ type UserRepository interface {
 	GetUserByID(ctx context.Context, ID int) (models.User, error)
 	UserEmailIsAvailable(ctx context.Context, email string) (bool, error)
 	CreateUser(ctx context.Context, user *models.User) (bool, error)
+	UpdateUser(ctx context.Context, user *models.User) (bool, error)
 }

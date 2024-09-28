@@ -2,6 +2,7 @@ package postgresrepository
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -161,6 +162,40 @@ func (p *PostgresUserRepository) CreateUser(ctx context.Context, user *models.Us
 
 	if err != nil {
 		return false, err
+	}
+
+	return true, nil
+}
+
+func (p *PostgresUserRepository) UpdateUser(ctx context.Context, user *models.User) (bool, error) {
+	query := `UPDATE tb_users
+	SET user_type_id = $1,
+		name = $2,
+		email = $3,
+		password = $4,
+		avatar = $5,
+		phone = $6,
+		updated_at = now()
+	WHERE id = $7`
+
+	commandTag, err := p.conn.Exec(ctx, query,
+		&user.UserTypeID,
+		&user.Name,
+		&user.Email,
+		&user.Password,
+		&user.Avatar,
+		&user.Phone,
+		&user.ID,
+	)
+
+	rowsAffected := commandTag.RowsAffected()
+
+	if err != nil {
+		return false, err
+	}
+
+	if rowsAffected <= 0 {
+		return false, errors.New("no users were updated")
 	}
 
 	return true, nil

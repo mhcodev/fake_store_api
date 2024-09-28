@@ -85,3 +85,17 @@ func (s *UserService) CreateUser(ctx context.Context, user *models.User) error {
 
 	return nil
 }
+
+func (s *UserService) UpdateUser(ctx context.Context, user *models.User) error {
+	ok, err := s.userRepository.UpdateUser(ctx, user)
+
+	if err != nil {
+		return err
+	}
+
+	if !ok {
+		return errors.New("user was not updated, check your user data")
+	}
+
+	return nil
+}
