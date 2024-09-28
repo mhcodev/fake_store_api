@@ -71,3 +71,17 @@ func (s *UserService) UserEmailIsAvailable(ctx context.Context, email string) (m
 
 	return response, nil
 }
+
+func (s *UserService) CreateUser(ctx context.Context, user *models.User) error {
+	ok, err := s.userRepository.CreateUser(ctx, user)
+
+	if err != nil {
+		return err
+	}
+
+	if !ok {
+		return errors.New("user was not created, check your user data")
+	}
+
+	return nil
+}

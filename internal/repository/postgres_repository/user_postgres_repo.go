@@ -131,3 +131,37 @@ func (p *PostgresUserRepository) UserEmailIsAvailable(ctx context.Context, email
 
 	return false, nil
 }
+
+func (p *PostgresUserRepository) CreateUser(ctx context.Context, user *models.User) (bool, error) {
+	query := `
+	INSERT INTO tb_users (
+			"user_type_id",
+			"name",
+			"email",
+			"password",
+			"avatar",
+			"phone"
+		)
+	VALUES ($1, $2, $3, $4, $5, $6)
+	RETURNING id;`
+
+	var userID int
+
+	err := p.conn.QueryRow(ctx, query,
+		&user.UserTypeID,
+		&user.Name,
+		&user.Email,
+		&user.Password,
+		&user.Avatar,
+		&user.Phone,
+	).Scan(&userID)
+
+	// Assign the new user id
+	user.ID = userID
+
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}

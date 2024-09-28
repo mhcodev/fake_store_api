@@ -100,3 +100,40 @@ func (h *UserHandler) UserEmailIsAvailable(c *fiber.Ctx) error {
 	// Return user as JSON
 	return util.SuccessReponse(c, response)
 }
+
+type CreateUserRequest struct {
+	User models.User `json:"user"`
+}
+
+func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
+	var request CreateUserRequest
+	messages := make([]string, 0)
+
+	// Parse the request body into the struct
+	if err := c.BodyParser(&request); err != nil {
+		messages = append(messages, "Error processing request")
+		return util.ErrorReponse(c, fiber.StatusInternalServerError, nil, messages)
+	}
+
+	user := request.User
+
+	typesAvailable := make([]int, 0)
+	typesAvailable = append(typesAvailable, 1, 2, 3)
+
+	if !util.Includes(typesAvailable, user.UserTypeID) {
+		messages = append(messages, "user type id is not valid")
+	}
+
+	err := h.UserService.CreateUser(c.Context(), &user)
+
+	if err != nil {
+		messages = append(messages, err.Error())
+		return util.ErrorReponse(c, fiber.StatusInternalServerError, nil, messages)
+	}
+
+	response := make(map[string]interface{})
+	response["user"] = user
+
+	// Return user as JSON
+	return util.SuccessReponse(c, response)
+}

@@ -29,3 +29,13 @@ func SuccessReponse(c *fiber.Ctx, data map[string]interface{}) error {
 
 	return c.Status(fiber.StatusNotFound).JSON(response)
 }
+
+// Function to check if a number is in the slice
+func Includes(arr []int, num int) bool {
+	for _, value := range arr {
+		if value == num {
+			return true
+		}
+	}
+	return false
+}
