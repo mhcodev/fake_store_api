@@ -2,6 +2,7 @@ package util
 
 import "github.com/gofiber/fiber/v2"
 
+// ErrorReponse return a server error and request status
 func ErrorReponse(c *fiber.Ctx, statusCode int, data interface{}, messages []string) error {
 	response := fiber.Map{
 		"success":    false,
@@ -17,6 +18,7 @@ func ErrorReponse(c *fiber.Ctx, statusCode int, data interface{}, messages []str
 	return c.Status(fiber.StatusNotFound).JSON(response)
 }
 
+// SuccessReponse returns a success response when a request is successful
 func SuccessReponse(c *fiber.Ctx, data map[string]interface{}) error {
 	response := fiber.Map{
 		"success":    true,

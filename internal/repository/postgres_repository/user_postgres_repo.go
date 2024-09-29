@@ -17,6 +17,8 @@ func NewPostgresUserRepository(conn *pgxpool.Pool) *PostgresUserRepository {
 	return &PostgresUserRepository{conn: conn}
 }
 
+// GetUsersByParams search a list of users by params
+// @params - models.QueryParams
 func (p *PostgresUserRepository) GetUsersByParams(ctx context.Context, params models.QueryParams) ([]models.User, error) {
 
 	query := `SELECT
@@ -70,6 +72,7 @@ func (p *PostgresUserRepository) GetUsersByParams(ctx context.Context, params mo
 	return users, nil
 }
 
+// GetUserByID returns a user by id
 func (p *PostgresUserRepository) GetUserByID(ctx context.Context, ID int) (models.User, error) {
 
 	query := `SELECT
@@ -109,6 +112,7 @@ func (p *PostgresUserRepository) GetUserByID(ctx context.Context, ID int) (model
 	return user, nil
 }
 
+// UserEmailIsAvailable checks an user email is available
 func (p *PostgresUserRepository) UserEmailIsAvailable(ctx context.Context, email string) (bool, error) {
 
 	query := `SELECT
@@ -133,6 +137,7 @@ func (p *PostgresUserRepository) UserEmailIsAvailable(ctx context.Context, email
 	return false, nil
 }
 
+// CreateUser creates a user to db
 func (p *PostgresUserRepository) CreateUser(ctx context.Context, user *models.User) (bool, error) {
 	query := `
 	INSERT INTO tb_users (
@@ -167,6 +172,7 @@ func (p *PostgresUserRepository) CreateUser(ctx context.Context, user *models.Us
 	return true, nil
 }
 
+// UpdateUser updates a user by id
 func (p *PostgresUserRepository) UpdateUser(ctx context.Context, user *models.User) (bool, error) {
 	query := `UPDATE tb_users
 	SET user_type_id = $1,
@@ -201,6 +207,7 @@ func (p *PostgresUserRepository) UpdateUser(ctx context.Context, user *models.Us
 	return true, nil
 }
 
+// DeleteUser deletes a user by id (status = 0)
 func (p *PostgresUserRepository) DeleteUser(ctx context.Context, userID int) (bool, error) {
 	query := `UPDATE tb_users
 	SET status = $1,
