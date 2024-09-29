@@ -73,6 +73,12 @@ func (s *UserService) UserEmailIsAvailable(ctx context.Context, email string) (m
 }
 
 func (s *UserService) CreateUser(ctx context.Context, user *models.User) error {
+	isAvailable, _ := s.userRepository.UserEmailIsAvailable(ctx, user.Email)
+
+	if !isAvailable {
+		return errors.New("email is already used, try other email")
+	}
+
 	ok, err := s.userRepository.CreateUser(ctx, user)
 
 	if err != nil {
@@ -112,4 +118,9 @@ func (s *UserService) DeletedUser(ctx context.Context, userID int) error {
 	}
 
 	return nil
+}
+
+func (s *UserService) GetUserTypes(ctx context.Context) ([]models.UserType, error) {
+	userTypes, err := s.userRepository.GetUserTypes(ctx)
+	return userTypes, err
 }

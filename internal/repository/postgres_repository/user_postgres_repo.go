@@ -3,7 +3,6 @@ package postgresrepository
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/mhcodev/fake_store_api/internal/models"
@@ -126,10 +125,6 @@ func (p *PostgresUserRepository) UserEmailIsAvailable(ctx context.Context, email
 
 	err := row.Scan(&userEmail)
 
-	fmt.Println("email: ", email)
-	fmt.Println("userEmail: ", userEmail)
-	fmt.Println("err: ", err)
-
 	if err != nil {
 		return true, nil
 	}
@@ -232,4 +227,30 @@ func (p *PostgresUserRepository) DeleteUser(ctx context.Context, userID int) (bo
 	}
 
 	return true, nil
+}
+
+// GetUserTypes returns a list of user types
+func (p *PostgresUserRepository) GetUserTypes(ctx context.Context) ([]models.UserType, error) {
+	query := "SELECT id, name, description FROM tb_user_type"
+
+	rows, err := p.conn.Query(ctx, query)
+
+	var userTypes []models.UserType
+
+	if err != nil {
+		return userTypes, err
+	}
+
+	for rows.Next() {
+		var userType models.UserType
+		rows.Scan(
+			&userType.ID,
+			&userType.Name,
+			&userType.Description,
+		)
+
+		userTypes = append(userTypes, userType)
+	}
+
+	return userTypes, nil
 }

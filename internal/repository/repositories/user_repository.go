@@ -13,4 +13,5 @@ type UserRepository interface {
 	CreateUser(ctx context.Context, user *models.User) (bool, error)
 	UpdateUser(ctx context.Context, user *models.User) (bool, error)
 	DeleteUser(ctx context.Context, userID int) (bool, error)
+	GetUserTypes(ctx context.Context) ([]models.UserType, error)
 }

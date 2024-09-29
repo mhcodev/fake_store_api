@@ -118,14 +118,25 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 
 	user := request.User
 
-	typesAvailable := make([]int, 0)
-	typesAvailable = append(typesAvailable, 1, 2, 3)
+	userTypes, err := h.UserService.GetUserTypes(c.Context())
 
-	if !util.Includes(typesAvailable, user.UserTypeID) {
-		messages = append(messages, "user type id is not valid")
+	if err != nil {
+		messages = append(messages, "user types no available")
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
 	}
 
-	err := h.UserService.CreateUser(c.Context(), &user)
+	var typesAvailable []int
+
+	for _, userType := range userTypes {
+		typesAvailable = append(typesAvailable, userType.ID)
+	}
+
+	if len(typesAvailable) > 0 && !util.Includes(typesAvailable, user.UserTypeID) {
+		messages = append(messages, "user type id is not valid")
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+	}
+
+	err = h.UserService.CreateUser(c.Context(), &user)
 
 	if err != nil {
 		messages = append(messages, err.Error())
@@ -170,10 +181,20 @@ func (h *UserHandler) UpdateUser(c *fiber.Ctx) error {
 	user := request.User
 	user.ID = userID
 
-	typesAvailable := make([]int, 0)
-	typesAvailable = append(typesAvailable, 1, 2, 3)
+	userTypes, err := h.UserService.GetUserTypes(c.Context())
 
-	if !util.Includes(typesAvailable, user.UserTypeID) {
+	if err != nil {
+		messages = append(messages, "user types no available")
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+	}
+
+	var typesAvailable []int
+
+	for _, userType := range userTypes {
+		typesAvailable = append(typesAvailable, userType.ID)
+	}
+
+	if len(typesAvailable) > 0 && !util.Includes(typesAvailable, user.UserTypeID) {
 		messages = append(messages, "user type id is not valid")
 	}
 
