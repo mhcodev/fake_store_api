@@ -20,3 +20,7 @@ func NewCategoryService(categoryRepository *repositories.CategoryRepository) *Ca
 func (cs *CategoryService) GetCategories(ctx context.Context) ([]models.Category, error) {
 	return cs.categoryRepository.GetCategories(ctx)
 }
+
+func (cs *CategoryService) CreateCategory(ctx context.Context, category *models.Category) error {
+	return cs.categoryRepository.CreateCategory(ctx, category)
+}

@@ -40,3 +40,27 @@ func (p *PostgresCategoryRepository) GetCategories(ctx context.Context) ([]model
 
 	return categories, nil
 }
+
+// CreateCategory creates a category into db
+func (p *PostgresCategoryRepository) CreateCategory(ctx context.Context, category *models.Category) error {
+	query := `		
+		INSERT INTO tb_categories ("name", "image_url")
+		VALUES ($1, $2)
+		RETURNING id;
+	`
+
+	var categoryID int
+
+	err := p.conn.QueryRow(ctx, query,
+		&category.Name,
+		&category.ImageURL,
+	).Scan(&categoryID)
+
+	if err != nil {
+		return err
+	}
+
+	category.ID = categoryID
+
+	return nil
+}
