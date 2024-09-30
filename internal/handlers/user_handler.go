@@ -98,7 +98,6 @@ func (h *UserHandler) UserEmailIsAvailable(c *fiber.Ctx) error {
 		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
 	}
 
-	// Return user as JSON
 	return util.SuccessReponse(c, response)
 }
 
