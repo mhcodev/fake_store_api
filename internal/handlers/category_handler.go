@@ -118,7 +118,7 @@ func (h *CategoryHandler) UpdateCategory(c *fiber.Ctx) error {
 	category, err := h.CategoryService.GetCategoryByID(c.Context(), categoryID)
 
 	if err != nil {
-		messages = append(messages, "category doesn't exist")
+		messages = append(messages, "category not found")
 		return util.ErrorReponse(c, fiber.StatusNotFound, nil, messages)
 	}
 
@@ -154,6 +154,39 @@ func (h *CategoryHandler) UpdateCategory(c *fiber.Ctx) error {
 	}
 
 	response := fiber.Map{"category": category}
+
+	return util.SuccessReponse(c, response)
+}
+
+func (h *CategoryHandler) DeleteCategory(c *fiber.Ctx) error {
+	messages := make([]string, 0)
+
+	categoryID, err := strconv.Atoi(c.Params("id", "0"))
+
+	if err != nil || categoryID == 0 {
+		messages = append(messages, "category id is not valid")
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+	}
+
+	_, err = h.CategoryService.GetCategoryByID(c.Context(), categoryID)
+
+	if err != nil {
+		messages = append(messages, "category not found")
+		return util.ErrorReponse(c, fiber.StatusNotFound, nil, messages)
+	}
+
+	err = h.CategoryService.DeleteCategory(c.Context(), categoryID)
+
+	if err != nil {
+		messages = append(messages, "category was not deleted")
+		return util.ErrorReponse(c, fiber.StatusNotFound, nil, messages)
+	}
+
+	if len(messages) > 0 {
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+	}
+
+	response := fiber.Map{"msg": "category deleted"}
 
 	return util.SuccessReponse(c, response)
 }

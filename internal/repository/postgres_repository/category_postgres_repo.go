@@ -44,7 +44,11 @@ func (p *PostgresCategoryRepository) GetCategories(ctx context.Context) ([]model
 
 // GetCategoryByID returns a single category by ID
 func (p *PostgresCategoryRepository) GetCategoryByID(ctx context.Context, ID int) (models.Category, error) {
-	query := "SELECT id, name, image_url, status FROM tb_categories WHERE id = $1"
+	query := `
+		SELECT id, name, image_url, status
+		FROM tb_categories
+		WHERE status = 1 AND id = $1
+	`
 
 	var category models.Category
 
@@ -99,6 +103,34 @@ func (p *PostgresCategoryRepository) UpdateCategory(ctx context.Context, categor
 		&category.ImageURL,
 		&category.Status,
 		&category.ID,
+	)
+
+	rowsAffected := commandTag.RowsAffected()
+
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected <= 0 {
+		return errors.New("no categories were updated")
+	}
+
+	return nil
+}
+
+// DeleteCategory deletes a category by id (status = 0)
+func (p *PostgresCategoryRepository) DeleteCategory(ctx context.Context, ID int) error {
+	query := `
+		UPDATE tb_categories
+		SET status = $1
+		WHERE id = $2;
+	`
+
+	statusDeletedCode := 0
+
+	commandTag, err := p.conn.Exec(ctx, query,
+		&statusDeletedCode,
+		&ID,
 	)
 
 	rowsAffected := commandTag.RowsAffected()

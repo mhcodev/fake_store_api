@@ -32,3 +32,7 @@ func (cs *CategoryService) CreateCategory(ctx context.Context, category *models.
 func (cs *CategoryService) UpdateCategory(ctx context.Context, category *models.Category) error {
 	return cs.categoryRepository.UpdateCategory(ctx, category)
 }
+
+func (cs *CategoryService) DeleteCategory(ctx context.Context, ID int) error {
+	return cs.categoryRepository.DeleteCategory(ctx, ID)
+}
