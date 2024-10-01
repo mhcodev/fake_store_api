@@ -21,6 +21,14 @@ func (cs *CategoryService) GetCategories(ctx context.Context) ([]models.Category
 	return cs.categoryRepository.GetCategories(ctx)
 }
 
+func (cs *CategoryService) GetCategoryByID(ctx context.Context, ID int) (models.Category, error) {
+	return cs.categoryRepository.GetCategoryByID(ctx, ID)
+}
+
 func (cs *CategoryService) CreateCategory(ctx context.Context, category *models.Category) error {
 	return cs.categoryRepository.CreateCategory(ctx, category)
+}
+
+func (cs *CategoryService) UpdateCategory(ctx context.Context, category *models.Category) error {
+	return cs.categoryRepository.UpdateCategory(ctx, category)
 }

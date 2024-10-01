@@ -138,7 +138,7 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 	err = h.UserService.CreateUser(c.Context(), &user)
 
 	if err != nil {
-		messages = append(messages, err.Error())
+		messages = append(messages, "user no created, check user payload")
 		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
 	}
 
@@ -173,7 +173,7 @@ func (h *UserHandler) UpdateUser(c *fiber.Ctx) error {
 	_, err = h.UserService.GetUserByID(c.Context(), userID)
 
 	if err != nil {
-		messages = append(messages, "user doesn't exist")
+		messages = append(messages, "user not found")
 		return util.ErrorReponse(c, fiber.StatusNotFound, nil, messages)
 	}
 

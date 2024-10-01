@@ -31,4 +31,5 @@ type Category struct {
 	ID       int    `json:"id"`
 	Name     string `json:"name"`
 	ImageURL string `json:"imageURL"`
+	Status   string `json:"status"`
 }

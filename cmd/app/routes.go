@@ -23,6 +23,8 @@ func setupRoutes(app *fiber.App, ch *container.ContainerHandler) {
 	// ============= Category routes ================
 	v1.Route("/category", func(router fiber.Router) {
 		router.Get("/", ch.CategoryHandler.GetCategories)
+		router.Get("/:id", ch.CategoryHandler.GetCategoryByID)
 		router.Post("/", ch.CategoryHandler.CreateCategory)
+		router.Put("/:id", ch.CategoryHandler.UpdateCategory)
 	})
 }
