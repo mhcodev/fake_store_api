@@ -9,6 +9,7 @@ import (
 	"github.com/mhcodev/fake_store_api/internal/models"
 	"github.com/mhcodev/fake_store_api/internal/services"
 	"github.com/mhcodev/fake_store_api/internal/util"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type UserHandler struct {
@@ -135,6 +136,49 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
 	}
 
+	if strings.TrimSpace(request.User.Name) == "" {
+		messages = append(messages, "name is required")
+	}
+
+	if strings.TrimSpace(request.User.Email) == "" {
+		messages = append(messages, "email is required")
+	} else {
+		response, _ := h.UserService.UserEmailIsAvailable(c.Context(), strings.TrimSpace(request.User.Email))
+
+		if response["isAvailable"] == false {
+			messages = append(messages, "email is already used")
+		}
+	}
+
+	if strings.TrimSpace(request.User.Password) == "" {
+		messages = append(messages, "password is required")
+	} else {
+		password := strings.TrimSpace(request.User.Password)
+		passwordHashed, err := bcrypt.GenerateFromPassword([]byte(password), 10)
+
+		if err != nil {
+			messages = append(messages, "password is not valid")
+			return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+		}
+
+		user.Password = string(passwordHashed)
+	}
+
+	if strings.TrimSpace(request.User.Avatar) != "" {
+		isImage, err := util.IsImageURL(strings.TrimSpace(request.User.Avatar))
+		if err != nil {
+			messages = append(messages, "avatar has to be a valid image")
+		} else if !isImage {
+			messages = append(messages, "avatar has to be a valid image")
+		} else {
+			user.Avatar = strings.TrimSpace(request.User.Avatar)
+		}
+	}
+
+	if len(messages) > 0 {
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+	}
+
 	err = h.UserService.CreateUser(c.Context(), &user)
 
 	if err != nil {
@@ -170,21 +214,53 @@ func (h *UserHandler) UpdateUser(c *fiber.Ctx) error {
 		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
 	}
 
-	_, err = h.UserService.GetUserByID(c.Context(), userID)
+	user, err := h.UserService.GetUserByID(c.Context(), userID)
 
 	if err != nil {
 		messages = append(messages, "user not found")
 		return util.ErrorReponse(c, fiber.StatusNotFound, nil, messages)
 	}
 
-	user := request.User
-	user.ID = userID
-
 	userTypes, err := h.UserService.GetUserTypes(c.Context())
 
 	if err != nil {
 		messages = append(messages, "user types no available")
 		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+	}
+
+	if strings.TrimSpace(request.User.Name) != "" {
+		user.Name = strings.TrimSpace(request.User.Name)
+	}
+
+	if strings.TrimSpace(request.User.Email) != "" {
+		user.Name = strings.TrimSpace(request.User.Email)
+	}
+
+	if strings.TrimSpace(request.User.Password) != "" {
+		password := strings.TrimSpace(request.User.Password)
+		passwordHashed, err := bcrypt.GenerateFromPassword([]byte(password), 10)
+
+		if err != nil {
+			messages = append(messages, "password is not valid")
+			return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+		}
+
+		user.Password = string(passwordHashed)
+	}
+
+	if strings.TrimSpace(request.User.Avatar) != "" {
+		isImage, err := util.IsImageURL(strings.TrimSpace(request.User.Avatar))
+		if err != nil {
+			messages = append(messages, "avatar has to be a valid image")
+		} else if !isImage {
+			messages = append(messages, "avatar has to be a valid image")
+		} else {
+			user.Avatar = strings.TrimSpace(request.User.Avatar)
+		}
+	}
+
+	if strings.TrimSpace(request.User.Phone) != "" {
+		user.Phone = strings.TrimSpace(request.User.Phone)
 	}
 
 	var typesAvailable []int
@@ -195,6 +271,10 @@ func (h *UserHandler) UpdateUser(c *fiber.Ctx) error {
 
 	if len(typesAvailable) > 0 && !util.Includes(typesAvailable, user.UserTypeID) {
 		messages = append(messages, "user type id is not valid")
+	}
+
+	if len(messages) > 0 {
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
 	}
 
 	err = h.UserService.UpdateUser(c.Context(), &user)

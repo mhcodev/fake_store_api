@@ -11,10 +11,10 @@ import (
 // ErrorReponse return a server error and request status
 func ErrorReponse(c *fiber.Ctx, statusCode int, data interface{}, messages []string) error {
 	response := fiber.Map{
-		"success":    false,
-		"statusCode": statusCode,
-		"error":      fiber.ErrBadRequest.Error(),
-		"messages":   messages,
+		"success":  false,
+		"code":     statusCode,
+		"error":    fiber.ErrBadRequest.Error(),
+		"messages": messages,
 	}
 
 	if data != nil {
@@ -27,8 +27,8 @@ func ErrorReponse(c *fiber.Ctx, statusCode int, data interface{}, messages []str
 // SuccessReponse returns a success response when a request is successful
 func SuccessReponse(c *fiber.Ctx, data map[string]interface{}) error {
 	response := fiber.Map{
-		"success":    true,
-		"statusCode": 200,
+		"success": true,
+		"code":    200,
 	}
 
 	for key, value := range data {
