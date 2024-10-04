@@ -1,0 +1,11 @@
+package repositories
+
+import (
+	"context"
+
+	"github.com/mhcodev/fake_store_api/internal/models"
+)
+
+type ProductRepository interface {
+	GetProductsByParams(ctx context.Context, params models.QueryParams) ([]models.Product, error)
+}

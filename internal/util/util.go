@@ -21,7 +21,7 @@ func ErrorReponse(c *fiber.Ctx, statusCode int, data interface{}, messages []str
 		response["data"] = data
 	}
 
-	return c.Status(fiber.StatusNotFound).JSON(response)
+	return c.Status(statusCode).JSON(response)
 }
 
 // SuccessReponse returns a success response when a request is successful
@@ -35,7 +35,7 @@ func SuccessReponse(c *fiber.Ctx, data map[string]interface{}) error {
 		response[key] = value
 	}
 
-	return c.Status(fiber.StatusNotFound).JSON(response)
+	return c.Status(fiber.StatusOK).JSON(response)
 }
 
 // Includes checks if a number is in the slice

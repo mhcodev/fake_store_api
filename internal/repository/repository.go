@@ -10,6 +10,7 @@ import (
 type DBRepository struct {
 	UserRepository     repositories.UserRepository
 	CategoryRepository repositories.CategoryRepository
+	ProductRepository  repositories.ProductRepository
 }
 
 func InitPosgresRepositories() (*DBRepository, *pgxpool.Pool) {
@@ -18,5 +19,6 @@ func InitPosgresRepositories() (*DBRepository, *pgxpool.Pool) {
 	return &DBRepository{
 		UserRepository:     postgresrepository.NewPostgresUserRepository(conn),
 		CategoryRepository: postgresrepository.NewPostgresCategoryRepository(conn),
+		ProductRepository:  postgresrepository.NewPostgresProductRepository(conn),
 	}, conn
 }

@@ -33,3 +33,18 @@ type Category struct {
 	ImageURL string `json:"imageURL"`
 	Status   string `json:"status"`
 }
+
+type Product struct {
+	ID          int       `json:"id"`
+	CategoryID  string    `json:"categoryID"`
+	Sku         string    `json:"sku"`
+	Name        string    `json:"name"`
+	Slug        string    `json:"slug"`
+	Stock       string    `json:"stock"`
+	Description string    `json:"description"`
+	Price       string    `json:"price"`
+	Discount    string    `json:"discount"`
+	Status      string    `json:"status"`
+	CreatedAt   time.Time `json:"createdAt"`
+	UpdatedAt   time.Time `json:"updatedAt"`
+}

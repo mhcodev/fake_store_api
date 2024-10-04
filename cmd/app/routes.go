@@ -28,4 +28,9 @@ func setupRoutes(app *fiber.App, ch *container.ContainerHandler) {
 		router.Put("/:id", ch.CategoryHandler.UpdateCategory)
 		router.Delete("/:id", ch.CategoryHandler.DeleteCategory)
 	})
+
+	// ============= Category routes ================
+	v1.Route("/product", func(router fiber.Router) {
+		router.Get("/", ch.ProductHandler.GetProductsByParams)
+	})
 }
