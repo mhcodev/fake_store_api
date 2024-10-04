@@ -30,3 +30,25 @@ func (h *ProductHandler) GetProductsByParams(c *fiber.Ctx) error {
 
 	return util.SuccessReponse(c, response)
 }
+
+func (h *ProductHandler) GetProductByID(c *fiber.Ctx) error {
+	ID, err := c.ParamsInt("id", 0)
+	messages := make([]string, 0)
+
+	if err != nil {
+		messages = append(messages, "id is not valid")
+		return util.ErrorReponse(c, fiber.StatusNotFound, nil, messages)
+	}
+
+	product, err := h.ProductService.GetProductByID(c.Context(), ID)
+
+	if err != nil {
+		messages = append(messages, "product not found")
+		return util.ErrorReponse(c, fiber.StatusNotFound, nil, messages)
+	}
+
+	response := make(map[string]interface{})
+	response["product"] = product
+
+	return util.SuccessReponse(c, response)
+}

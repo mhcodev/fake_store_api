@@ -44,27 +44,75 @@ func (p *PostgresProductRepository) GetProductsByParams(ctx context.Context, par
 	defer rows.Close()
 
 	for rows.Next() {
-		var p models.Product
+		var product models.Product
 		err := rows.Scan(
-			&p.ID,
-			&p.CategoryID,
-			&p.Sku,
-			&p.Name,
-			&p.Slug,
-			&p.Stock,
-			&p.Description,
-			&p.Price,
-			&p.Discount,
-			&p.Status,
-			&p.CreatedAt,
-			&p.UpdatedAt,
+			&product.ID,
+			&product.CategoryID,
+			&product.Sku,
+			&product.Name,
+			&product.Slug,
+			&product.Stock,
+			&product.Description,
+			&product.Price,
+			&product.Discount,
+			&product.Status,
+			&product.CreatedAt,
+			&product.UpdatedAt,
 		)
 
 		if err != nil {
 			return []models.Product{}, err
 		}
-		products = append(products, p)
+		products = append(products, product)
 	}
 
 	return products, nil
+}
+
+// GetProductByID returns a product by id
+func (p *PostgresProductRepository) GetProductByID(ctx context.Context, ID int) (models.Product, error) {
+	query := `
+		SELECT
+			id,
+			category_id,
+			sku,
+			name,
+			slug,
+			stock,
+			description,
+			price,
+			discount,
+			status,
+			created_at,
+			updated_at
+		FROM tb_products
+		WHERE id = $1
+	`
+
+	var product models.Product
+
+	err := p.conn.QueryRow(ctx, query, ID).Scan(
+		&product.ID,
+		&product.CategoryID,
+		&product.Sku,
+		&product.Name,
+		&product.Slug,
+		&product.Stock,
+		&product.Description,
+		&product.Price,
+		&product.Discount,
+		&product.Status,
+		&product.CreatedAt,
+		&product.UpdatedAt,
+	)
+
+	if err != nil {
+		return product, err
+	}
+
+	if err != nil {
+		return models.Product{}, err
+	}
+
+	return product, nil
 }

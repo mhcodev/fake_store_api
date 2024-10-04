@@ -32,5 +32,6 @@ func setupRoutes(app *fiber.App, ch *container.ContainerHandler) {
 	// ============= Category routes ================
 	v1.Route("/product", func(router fiber.Router) {
 		router.Get("/", ch.ProductHandler.GetProductsByParams)
+		router.Get("/:id", ch.ProductHandler.GetProductByID)
 	})
 }
