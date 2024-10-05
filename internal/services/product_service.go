@@ -24,3 +24,8 @@ func (ps *ProductService) GetProductsByParams(ctx context.Context, params models
 func (ps *ProductService) GetProductByID(ctx context.Context, ID int) (models.Product, error) {
 	return ps.productRepository.GetProductByID(ctx, ID)
 }
+
+func (ps *ProductService) CreateProduct(ctx context.Context, product *models.Product) error {
+	product.Slug = models.GenerateSlug(product.Slug)
+	return ps.productRepository.CreateProduct(ctx, product)
+}

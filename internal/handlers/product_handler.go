@@ -52,3 +52,37 @@ func (h *ProductHandler) GetProductByID(c *fiber.Ctx) error {
 
 	return util.SuccessReponse(c, response)
 }
+
+type CreateProductRequest struct {
+	Product models.Product `json:"product"`
+}
+
+func (h *ProductHandler) CreateProduct(c *fiber.Ctx) error {
+	var request CreateProductRequest
+	messages := make([]string, 0)
+
+	if err := c.BodyParser(&request); err != nil {
+		messages = append(messages, "error processing request")
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+	}
+
+	product := request.Product
+
+	messages = product.Validate()
+
+	if len(messages) > 0 {
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+	}
+
+	err := h.ProductService.CreateProduct(c.Context(), &product)
+
+	if err != nil {
+		messages = append(messages, "product was not created", err.Error())
+		return util.ErrorReponse(c, fiber.StatusNotFound, nil, messages)
+	}
+
+	response := make(map[string]interface{})
+	response["product"] = product
+
+	return util.SuccessReponse(c, response)
+}

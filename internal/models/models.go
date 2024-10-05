@@ -16,7 +16,7 @@ type User struct {
 	Password   string    `json:"password"`
 	Avatar     string    `json:"avatar"`
 	Phone      string    `json:"phone"`
-	Status     int       `json:"status"`
+	Status     int8      `json:"status"`
 	CreatedAt  time.Time `json:"createdAt"`
 	UpdatedAt  time.Time `json:"updatedAt"`
 }
@@ -31,20 +31,20 @@ type Category struct {
 	ID       int    `json:"id"`
 	Name     string `json:"name"`
 	ImageURL string `json:"imageURL"`
-	Status   string `json:"status"`
+	Status   int8   `json:"status"`
 }
 
 type Product struct {
 	ID          int       `json:"id"`
-	CategoryID  string    `json:"categoryID"`
+	CategoryID  int       `json:"categoryID"`
 	Sku         string    `json:"sku"`
 	Name        string    `json:"name"`
 	Slug        string    `json:"slug"`
-	Stock       string    `json:"stock"`
+	Stock       int       `json:"stock"`
 	Description string    `json:"description"`
-	Price       string    `json:"price"`
-	Discount    string    `json:"discount"`
-	Status      string    `json:"status"`
+	Price       float32   `json:"price"`
+	Discount    float32   `json:"discount"`
+	Status      int8      `json:"status"`
 	CreatedAt   time.Time `json:"createdAt"`
 	UpdatedAt   time.Time `json:"updatedAt"`
 }

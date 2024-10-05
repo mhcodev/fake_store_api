@@ -116,3 +116,52 @@ func (p *PostgresProductRepository) GetProductByID(ctx context.Context, ID int) 
 
 	return product, nil
 }
+
+func (p *PostgresProductRepository) CreateProduct(ctx context.Context, product *models.Product) error {
+	query := `
+		INSERT INTO
+			tb_products (
+				"category_id",
+				"sku",
+				"name",
+				"slug",
+				"stock",
+				"description",
+				"price",
+				"discount"
+			)
+		VALUES
+			(
+				$1,
+				$2,
+				$3,
+				$4,
+				$5,
+				$6,
+				$7,
+				$8
+			)
+		RETURNING id;
+	`
+
+	var productID int
+
+	err := p.conn.QueryRow(ctx, query,
+		&product.CategoryID,
+		&product.Sku,
+		&product.Name,
+		&product.Slug,
+		&product.Stock,
+		&product.Description,
+		&product.Price,
+		&product.Discount,
+	).Scan(&productID)
+
+	if err != nil {
+		return err
+	}
+
+	product.ID = productID
+
+	return nil
+}

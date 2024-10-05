@@ -29,9 +29,10 @@ func setupRoutes(app *fiber.App, ch *container.ContainerHandler) {
 		router.Delete("/:id", ch.CategoryHandler.DeleteCategory)
 	})
 
-	// ============= Category routes ================
+	// ============= Product routes ================
 	v1.Route("/product", func(router fiber.Router) {
 		router.Get("/", ch.ProductHandler.GetProductsByParams)
 		router.Get("/:id", ch.ProductHandler.GetProductByID)
+		router.Post("/", ch.ProductHandler.CreateProduct)
 	})
 }
