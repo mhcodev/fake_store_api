@@ -35,6 +35,25 @@ func (p *Product) Validate() []string {
 	return messages
 }
 
+func (p *Product) SetData(prod Product) {
+	if strings.TrimSpace(prod.Sku) != "" {
+		p.Sku = strings.TrimSpace(prod.Sku)
+	}
+
+	if strings.TrimSpace(prod.Name) != "" {
+		p.Name = strings.TrimSpace(prod.Name)
+		p.Slug = GenerateSlug(p.Name)
+	}
+
+	if strings.TrimSpace(prod.Description) != "" {
+		p.Description = strings.TrimSpace(prod.Description)
+	}
+
+	p.Stock = prod.Stock
+	p.Price = prod.Price
+	p.Discount = prod.Discount
+}
+
 func GenerateSlug(text string) string {
 	slug := strings.ToLower(text)
 	slug = strings.ReplaceAll(slug, " ", "-")

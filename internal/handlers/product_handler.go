@@ -1,10 +1,13 @@
 package handlers
 
 import (
+	"fmt"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/mhcodev/fake_store_api/internal/models"
 	"github.com/mhcodev/fake_store_api/internal/services"
 	"github.com/mhcodev/fake_store_api/internal/util"
+	"github.com/mhcodev/fake_store_api/internal/validators"
 )
 
 type ProductHandler struct {
@@ -67,7 +70,6 @@ func (h *ProductHandler) CreateProduct(c *fiber.Ctx) error {
 	}
 
 	product := request.Product
-
 	messages = product.Validate()
 
 	if len(messages) > 0 {
@@ -77,7 +79,54 @@ func (h *ProductHandler) CreateProduct(c *fiber.Ctx) error {
 	err := h.ProductService.CreateProduct(c.Context(), &product)
 
 	if err != nil {
-		messages = append(messages, "product was not created", err.Error())
+		messages = append(messages, "product was not created")
+		return util.ErrorReponse(c, fiber.StatusNotFound, nil, messages)
+	}
+
+	response := make(map[string]interface{})
+	response["product"] = product
+
+	return util.SuccessReponse(c, response)
+}
+
+func (h *ProductHandler) UpdateProduct(c *fiber.Ctx) error {
+	ID, err := c.ParamsInt("id", 0)
+	messages := make([]string, 0)
+
+	if err != nil || ID <= 0 {
+		messages = append(messages, "id is not valid")
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+	}
+
+	if err != nil {
+		messages = append(messages, "product not found")
+		return util.ErrorReponse(c, fiber.StatusNotFound, nil, messages)
+	}
+
+	var input services.ProductUpdateInput
+	if err := c.BodyParser(&input); err != nil {
+		messages = append(messages, "error processing request")
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+	}
+
+	fmt.Println("input", input)
+
+	validationErrors := validators.ValidateProductUpdateInput(input)
+
+	if validationErrors.HasErrors() {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"validation_errors": validationErrors,
+		})
+	}
+
+	if len(messages) > 0 {
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+	}
+
+	product, err := h.ProductService.UpdateProduct(c.Context(), ID, input)
+
+	if err != nil {
+		messages = append(messages, "product was not created")
 		return util.ErrorReponse(c, fiber.StatusNotFound, nil, messages)
 	}
 

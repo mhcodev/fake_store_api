@@ -2,6 +2,7 @@ package postgresrepository
 
 import (
 	"context"
+	"errors"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/mhcodev/fake_store_api/internal/models"
@@ -107,10 +108,6 @@ func (p *PostgresProductRepository) GetProductByID(ctx context.Context, ID int) 
 	)
 
 	if err != nil {
-		return product, err
-	}
-
-	if err != nil {
 		return models.Product{}, err
 	}
 
@@ -162,6 +159,46 @@ func (p *PostgresProductRepository) CreateProduct(ctx context.Context, product *
 	}
 
 	product.ID = productID
+
+	return nil
+}
+
+func (p *PostgresProductRepository) UpdateProduct(ctx context.Context, product *models.Product) error {
+	query := `
+		UPDATE tb_products
+		SET category_id = $1,
+			sku = $2,
+			name = $3,
+			slug = $4,
+			stock = $5,
+			description = $6,
+			price = $7,
+			discount = $8,
+			updated_at = now()
+		WHERE id = $9;
+	`
+
+	commandTag, err := p.conn.Exec(ctx, query,
+		&product.CategoryID,
+		&product.Sku,
+		&product.Name,
+		&product.Slug,
+		&product.Stock,
+		&product.Description,
+		&product.Price,
+		&product.Discount,
+		&product.ID,
+	)
+
+	rowsAffected := commandTag.RowsAffected()
+
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected <= 0 {
+		return errors.New("products were not updated")
+	}
 
 	return nil
 }

@@ -34,5 +34,6 @@ func setupRoutes(app *fiber.App, ch *container.ContainerHandler) {
 		router.Get("/", ch.ProductHandler.GetProductsByParams)
 		router.Get("/:id", ch.ProductHandler.GetProductByID)
 		router.Post("/", ch.ProductHandler.CreateProduct)
+		router.Put("/:id", ch.ProductHandler.UpdateProduct)
 	})
 }
