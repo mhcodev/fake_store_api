@@ -61,22 +61,27 @@ type CreateProductRequest struct {
 }
 
 func (h *ProductHandler) CreateProduct(c *fiber.Ctx) error {
-	var request CreateProductRequest
+	var input models.ProductCreateInput
 	messages := make([]string, 0)
 
-	if err := c.BodyParser(&request); err != nil {
+	if err := c.BodyParser(&input); err != nil {
 		messages = append(messages, "error processing request")
 		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
 	}
 
-	product := request.Product
-	messages = product.Validate()
+	validationErrors := validators.ValidateProductCreateInput(input)
+
+	if validationErrors.HasErrors() {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"validation_errors": validationErrors,
+		})
+	}
 
 	if len(messages) > 0 {
 		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
 	}
 
-	err := h.ProductService.CreateProduct(c.Context(), &product)
+	product, err := h.ProductService.CreateProduct(c.Context(), input)
 
 	if err != nil {
 		messages = append(messages, "product was not created")
@@ -98,12 +103,7 @@ func (h *ProductHandler) UpdateProduct(c *fiber.Ctx) error {
 		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
 	}
 
-	if err != nil {
-		messages = append(messages, "product not found")
-		return util.ErrorReponse(c, fiber.StatusNotFound, nil, messages)
-	}
-
-	var input services.ProductUpdateInput
+	var input models.ProductUpdateInput
 	if err := c.BodyParser(&input); err != nil {
 		messages = append(messages, "error processing request")
 		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
@@ -126,7 +126,7 @@ func (h *ProductHandler) UpdateProduct(c *fiber.Ctx) error {
 	product, err := h.ProductService.UpdateProduct(c.Context(), ID, input)
 
 	if err != nil {
-		messages = append(messages, "product was not created")
+		messages = append(messages, err.Error())
 		return util.ErrorReponse(c, fiber.StatusNotFound, nil, messages)
 	}
 
