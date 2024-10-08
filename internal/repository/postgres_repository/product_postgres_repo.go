@@ -202,3 +202,31 @@ func (p *PostgresProductRepository) UpdateProduct(ctx context.Context, product *
 
 	return nil
 }
+
+func (p *PostgresProductRepository) DeleteProduct(ctx context.Context, ID int) error {
+	query := `
+		UPDATE tb_products
+		SET status = $1
+			updated_at = now()
+		WHERE id = $2;
+	`
+
+	statusDeletedCode := 0
+
+	commandTag, err := p.conn.Exec(ctx, query,
+		statusDeletedCode,
+		ID,
+	)
+
+	rowsAffected := commandTag.RowsAffected()
+
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected <= 0 {
+		return errors.New("products were not deleted")
+	}
+
+	return nil
+}

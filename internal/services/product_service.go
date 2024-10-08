@@ -6,7 +6,6 @@ import (
 
 	"github.com/mhcodev/fake_store_api/internal/models"
 	"github.com/mhcodev/fake_store_api/internal/repository/repositories"
-	"github.com/mhcodev/fake_store_api/internal/validators"
 
 	"github.com/mhcodev/fake_store_api/pkg"
 )
@@ -29,13 +28,24 @@ func (ps *ProductService) GetProductByID(ctx context.Context, ID int) (models.Pr
 	return ps.productRepository.GetProductByID(ctx, ID)
 }
 
-func (ps *ProductService) CreateProduct(ctx context.Context, input models.ProductCreateInput) (*models.Product, error) {
+type ProductCreateInput struct {
+	CategoryID  *int     `json:"categoryID"`
+	Sku         *string  `json:"sku"`
+	Name        *string  `json:"name"`
+	Stock       *int     `json:"stock"`
+	Description *string  `json:"description"`
+	Price       *float32 `json:"price"`
+	Discount    *float32 `json:"discount"`
+	Status      *int8    `json:"status"`
+}
+
+func (ps *ProductService) CreateProduct(ctx context.Context, input ProductCreateInput) (*models.Product, error) {
 
 	// Map input to product model
 	newProduct := &models.Product{
 		CategoryID:  *input.CategoryID,
 		Name:        *input.Name,
-		Slug:        validators.GenerateSlug(*input.Name),
+		Slug:        pkg.GenerateSlug(*input.Name),
 		Description: *input.Description,
 		Price:       *input.Price,
 		Stock:       *input.Stock,
@@ -63,7 +73,18 @@ func (ps *ProductService) CreateProduct(ctx context.Context, input models.Produc
 	return &productUpdated, nil
 }
 
-func (ps *ProductService) UpdateProduct(ctx context.Context, ID int, input models.ProductUpdateInput) (*models.Product, error) {
+type ProductUpdateInput struct {
+	CategoryID  *int     `json:"categoryID"`
+	Sku         *string  `json:"sku"`
+	Name        *string  `json:"name"`
+	Stock       *int     `json:"stock"`
+	Description *string  `json:"description"`
+	Price       *float32 `json:"price"`
+	Discount    *float32 `json:"discount"`
+	Status      *int8    `json:"status"`
+}
+
+func (ps *ProductService) UpdateProduct(ctx context.Context, ID int, input ProductUpdateInput) (*models.Product, error) {
 
 	product, err := ps.GetProductByID(ctx, ID)
 
@@ -77,7 +98,7 @@ func (ps *ProductService) UpdateProduct(ctx context.Context, ID int, input model
 
 	if input.Name != nil {
 		product.Name = *input.Name
-		product.Slug = validators.GenerateSlug(*input.Name)
+		product.Slug = pkg.GenerateSlug(*input.Name)
 	}
 
 	if input.Sku != nil {
@@ -107,4 +128,20 @@ func (ps *ProductService) UpdateProduct(ctx context.Context, ID int, input model
 	}
 
 	return &product, nil
+}
+
+func (ps *ProductService) DeleteProduct(ctx context.Context, ID int) error {
+	_, err := ps.GetProductByID(ctx, ID)
+
+	if err != nil {
+		return errors.New("product not found")
+	}
+
+	err = ps.productRepository.DeleteProduct(ctx, ID)
+
+	if err != nil {
+		return errors.New("product no updated")
+	}
+
+	return nil
 }

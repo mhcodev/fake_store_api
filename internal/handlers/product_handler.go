@@ -61,7 +61,7 @@ type CreateProductRequest struct {
 }
 
 func (h *ProductHandler) CreateProduct(c *fiber.Ctx) error {
-	var input models.ProductCreateInput
+	var input services.ProductCreateInput
 	messages := make([]string, 0)
 
 	if err := c.BodyParser(&input); err != nil {
@@ -103,13 +103,11 @@ func (h *ProductHandler) UpdateProduct(c *fiber.Ctx) error {
 		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
 	}
 
-	var input models.ProductUpdateInput
+	var input services.ProductUpdateInput
 	if err := c.BodyParser(&input); err != nil {
 		messages = append(messages, "error processing request")
 		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
 	}
-
-	fmt.Println("input", input)
 
 	validationErrors := validators.ValidateProductUpdateInput(input)
 
@@ -132,6 +130,28 @@ func (h *ProductHandler) UpdateProduct(c *fiber.Ctx) error {
 
 	response := make(map[string]interface{})
 	response["product"] = product
+
+	return util.SuccessReponse(c, response)
+}
+
+func (h *ProductHandler) DeleteProduct(c *fiber.Ctx) error {
+	ID, err := c.ParamsInt("id", 0)
+	messages := make([]string, 0)
+
+	if err != nil || ID <= 0 {
+		messages = append(messages, "id is not valid")
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+	}
+
+	err = h.ProductService.DeleteProduct(c.Context(), ID)
+
+	if err != nil {
+		messages = append(messages, err.Error())
+		return util.ErrorReponse(c, fiber.StatusNotFound, nil, messages)
+	}
+
+	response := make(map[string]interface{})
+	response["msg"] = fmt.Sprintf("product %d deleted", ID)
 
 	return util.SuccessReponse(c, response)
 }

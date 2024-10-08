@@ -1,6 +1,10 @@
 package pkg
 
-import "math/rand"
+import (
+	"math/rand"
+	"regexp"
+	"strings"
+)
 
 func GenerateRandomString(length int) string {
 	const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -12,4 +16,16 @@ func GenerateRandomString(length int) string {
 	}
 
 	return string(sku)
+}
+
+// GenerateSlug converts to alphanumeric slug concated with dashes
+func GenerateSlug(text string) string {
+	slug := strings.ToLower(text)
+	slug = strings.ReplaceAll(slug, " ", "-")
+
+	re := regexp.MustCompile(`[^a-z0-9\-]+`)
+	slug = re.ReplaceAllString(slug, "")
+
+	slug = strings.Trim(slug, "-")
+	return slug
 }

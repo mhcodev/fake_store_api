@@ -11,4 +11,5 @@ type ProductRepository interface {
 	GetProductByID(ctx context.Context, ID int) (models.Product, error)
 	CreateProduct(ctx context.Context, product *models.Product) error
 	UpdateProduct(ctx context.Context, product *models.Product) error
+	DeleteProduct(ctx context.Context, ID int) error
 }

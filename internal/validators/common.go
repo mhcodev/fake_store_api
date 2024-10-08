@@ -22,18 +22,6 @@ func (ve ValidationErrors) Error() string {
 	return fmt.Sprintf("validation failed")
 }
 
-// GenerateSlug converts to alphanumeric slug concated with dashes
-func GenerateSlug(text string) string {
-	slug := strings.ToLower(text)
-	slug = strings.ReplaceAll(slug, " ", "-")
-
-	re := regexp.MustCompile(`[^a-z0-9\-]+`)
-	slug = re.ReplaceAllString(slug, "")
-
-	slug = strings.Trim(slug, "-")
-	return slug
-}
-
 // IsValidEmail validates email format using a regex
 func IsValidEmail(email string) bool {
 	emailRegex := regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`)

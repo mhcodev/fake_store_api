@@ -3,11 +3,11 @@ package validators
 import (
 	"strings"
 
-	"github.com/mhcodev/fake_store_api/internal/models"
+	"github.com/mhcodev/fake_store_api/internal/services"
 )
 
 // Validates the product input for create operation
-func ValidateProductCreateInput(input models.ProductCreateInput) ValidationErrors {
+func ValidateProductCreateInput(input services.ProductCreateInput) ValidationErrors {
 	var validationErrors = ValidationErrors{}
 
 	if input.CategoryID == nil &&
@@ -57,7 +57,7 @@ func ValidateProductCreateInput(input models.ProductCreateInput) ValidationError
 }
 
 // Validates the product input for update operation
-func ValidateProductUpdateInput(input models.ProductUpdateInput) ValidationErrors {
+func ValidateProductUpdateInput(input services.ProductUpdateInput) ValidationErrors {
 	var validationErrors = ValidationErrors{}
 
 	if input.CategoryID == nil &&
