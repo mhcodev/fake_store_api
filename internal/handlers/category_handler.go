@@ -8,6 +8,8 @@ import (
 	"github.com/mhcodev/fake_store_api/internal/models"
 	"github.com/mhcodev/fake_store_api/internal/services"
 	"github.com/mhcodev/fake_store_api/internal/util"
+	"github.com/mhcodev/fake_store_api/internal/validators"
+	"github.com/mhcodev/fake_store_api/pkg"
 )
 
 type CategoryHandler struct {
@@ -20,12 +22,11 @@ func NewCategoryHandler(categoryService *services.CategoryService) *CategoryHand
 
 func (h *CategoryHandler) GetCategories(c *fiber.Ctx) error {
 	categories, err := h.CategoryService.GetCategories(c.Context())
-
-	messages := make([]string, 0)
+	var validationErrors = validators.ValidationErrors{}
 
 	if err != nil {
-		messages = append(messages, err.Error())
-		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+		validationErrors.AddError("errors", err.Error())
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, validationErrors)
 	}
 
 	response := fiber.Map{"categories": categories}
@@ -34,19 +35,19 @@ func (h *CategoryHandler) GetCategories(c *fiber.Ctx) error {
 }
 
 func (h *CategoryHandler) GetCategoryByID(c *fiber.Ctx) error {
-	messages := make([]string, 0)
 	categoryID, err := strconv.Atoi(c.Params("id", "0"))
+	var validationErrors = validators.ValidationErrors{}
 
 	if err != nil || categoryID == 0 {
-		messages = append(messages, "category id is not valid")
-		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+		validationErrors.AddError("errors", "category id is not valid")
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, validationErrors)
 	}
 
 	category, err := h.CategoryService.GetCategoryByID(c.Context(), categoryID)
 
 	if err != nil {
-		messages = append(messages, "category not found")
-		return util.ErrorReponse(c, fiber.StatusNotFound, nil, messages)
+		validationErrors.AddError("errors", "category not found")
+		return util.ErrorReponse(c, fiber.StatusNotFound, nil, validationErrors)
 	}
 
 	response := fiber.Map{"category": category}
@@ -60,39 +61,38 @@ type CreateCategoryRequest struct {
 
 func (h *CategoryHandler) CreateCategory(c *fiber.Ctx) error {
 	var request CreateCategoryRequest
-	messages := make([]string, 0)
+	var validationErrors = validators.ValidationErrors{}
 
 	// Parse the request body into the struct
 	if err := c.BodyParser(&request); err != nil {
-		messages = append(messages, "Error processing request")
-		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+		validationErrors.AddError("errors", "Error processing request")
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, validationErrors)
 	}
 
 	category := request.Category
 
 	if strings.TrimSpace(category.Name) == "" {
-		messages = append(messages, "name is required")
+		validationErrors.AddError("name", "name is required")
 	}
 
 	if strings.TrimSpace(category.ImageURL) == "" {
-		messages = append(messages, "imageURL is required")
+		validationErrors.AddError("imageURL", "imageURL is required")
 	}
 
-	validImage, _ := util.IsImageURL(strings.TrimSpace(category.ImageURL))
+	validImage, _ := pkg.IsImageURL(strings.TrimSpace(category.ImageURL))
 
 	if !validImage {
-		messages = append(messages, "imageURL has to contains a valid image")
+		validationErrors.AddError("imageURL", "imageURL has to contains a valid image")
 	}
 
-	if len(messages) > 0 {
-		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+	if validationErrors.HasErrors() {
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, validationErrors)
 	}
 
 	err := h.CategoryService.CreateCategory(c.Context(), &category)
 
 	if err != nil {
-		messages = append(messages, err.Error())
-		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, validationErrors)
 	}
 
 	response := fiber.Map{"category": category}
@@ -106,26 +106,26 @@ type UpdateCategoryRequest struct {
 
 func (h *CategoryHandler) UpdateCategory(c *fiber.Ctx) error {
 	var request UpdateCategoryRequest
-	messages := make([]string, 0)
+	var validationErrors = validators.ValidationErrors{}
 
 	categoryID, err := strconv.Atoi(c.Params("id", "0"))
 
 	if err != nil || categoryID == 0 {
-		messages = append(messages, "category id is not valid")
-		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+		validationErrors.AddError("category", "category id is not valid")
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, validationErrors)
 	}
 
 	category, err := h.CategoryService.GetCategoryByID(c.Context(), categoryID)
 
 	if err != nil {
-		messages = append(messages, "category not found")
-		return util.ErrorReponse(c, fiber.StatusNotFound, nil, messages)
+		validationErrors.AddError("category", "category not found")
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, validationErrors)
 	}
 
 	// Parse the request body into the struct
 	if err := c.BodyParser(&request); err != nil {
-		messages = append(messages, "Error processing request")
-		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+		validationErrors.AddError("category", "error processing request")
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, validationErrors)
 	}
 
 	if strings.TrimSpace(request.Category.Name) != "" {
@@ -135,22 +135,22 @@ func (h *CategoryHandler) UpdateCategory(c *fiber.Ctx) error {
 	if strings.TrimSpace(request.Category.ImageURL) != "" {
 		category.ImageURL = request.Category.ImageURL
 
-		validImage, _ := util.IsImageURL(strings.TrimSpace(request.Category.ImageURL))
+		validImage, _ := pkg.IsImageURL(strings.TrimSpace(request.Category.ImageURL))
 
 		if !validImage {
-			messages = append(messages, "imageURL has to contains a valid image")
+			validationErrors.AddError("imageURL", "imageURL has to contains a valid image")
 		}
 	}
 
-	if len(messages) > 0 {
-		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+	if validationErrors.HasErrors() {
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, validationErrors)
 	}
 
 	err = h.CategoryService.UpdateCategory(c.Context(), &category)
 
 	if err != nil {
-		messages = append(messages, err.Error())
-		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+		validationErrors.AddError("category", err.Error())
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, validationErrors)
 	}
 
 	response := fiber.Map{"category": category}
@@ -159,31 +159,31 @@ func (h *CategoryHandler) UpdateCategory(c *fiber.Ctx) error {
 }
 
 func (h *CategoryHandler) DeleteCategory(c *fiber.Ctx) error {
-	messages := make([]string, 0)
+	var validationErrors = validators.ValidationErrors{}
 
 	categoryID, err := strconv.Atoi(c.Params("id", "0"))
 
 	if err != nil || categoryID == 0 {
-		messages = append(messages, "category id is not valid")
-		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+		validationErrors.AddError("category", "category id is not valid")
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, validationErrors)
 	}
 
 	_, err = h.CategoryService.GetCategoryByID(c.Context(), categoryID)
 
 	if err != nil {
-		messages = append(messages, "category not found")
-		return util.ErrorReponse(c, fiber.StatusNotFound, nil, messages)
+		validationErrors.AddError("category", "category not found")
+		return util.ErrorReponse(c, fiber.StatusNotFound, nil, validationErrors)
 	}
 
 	err = h.CategoryService.DeleteCategory(c.Context(), categoryID)
 
 	if err != nil {
-		messages = append(messages, "category was not deleted")
-		return util.ErrorReponse(c, fiber.StatusNotFound, nil, messages)
+		validationErrors.AddError("category", "category was not deleted")
+		return util.ErrorReponse(c, fiber.StatusNotFound, nil, validationErrors)
 	}
 
-	if len(messages) > 0 {
-		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+	if validationErrors.HasErrors() {
+		return util.ErrorReponse(c, fiber.StatusNotFound, nil, validationErrors)
 	}
 
 	response := fiber.Map{"msg": "category deleted"}

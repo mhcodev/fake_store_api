@@ -20,12 +20,11 @@ func NewProductHandler(productService *services.ProductService) *ProductHandler 
 
 func (h *ProductHandler) GetProductsByParams(c *fiber.Ctx) error {
 	products, err := h.ProductService.GetProductsByParams(c.Context(), models.QueryParams{})
-
-	messages := make([]string, 0)
+	var validationErrors validators.ValidationErrors
 
 	if err != nil {
-		messages = append(messages, "no products found")
-		return util.ErrorReponse(c, fiber.StatusNotFound, nil, messages)
+		validationErrors.AddError("msg", "no products found")
+		return util.ErrorReponse(c, fiber.StatusNotFound, nil, validationErrors)
 	}
 
 	response := make(map[string]interface{})
@@ -36,18 +35,18 @@ func (h *ProductHandler) GetProductsByParams(c *fiber.Ctx) error {
 
 func (h *ProductHandler) GetProductByID(c *fiber.Ctx) error {
 	ID, err := c.ParamsInt("id", 0)
-	messages := make([]string, 0)
+	var validationErrors = validators.ValidationErrors{}
 
 	if err != nil {
-		messages = append(messages, "id is not valid")
-		return util.ErrorReponse(c, fiber.StatusNotFound, nil, messages)
+		validationErrors.AddError("msg", "id is not valid")
+		return util.ErrorReponse(c, fiber.StatusNotFound, nil, validationErrors)
 	}
 
 	product, err := h.ProductService.GetProductByID(c.Context(), ID)
 
 	if err != nil {
-		messages = append(messages, "product not found")
-		return util.ErrorReponse(c, fiber.StatusNotFound, nil, messages)
+		validationErrors.AddError("msg", "product not found")
+		return util.ErrorReponse(c, fiber.StatusNotFound, nil, validationErrors)
 	}
 
 	response := make(map[string]interface{})
@@ -62,30 +61,24 @@ type CreateProductRequest struct {
 
 func (h *ProductHandler) CreateProduct(c *fiber.Ctx) error {
 	var input services.ProductCreateInput
-	messages := make([]string, 0)
+	var validationErrors = validators.ValidationErrors{}
 
 	if err := c.BodyParser(&input); err != nil {
-		messages = append(messages, "error processing request")
-		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+		validationErrors.AddError("msg", "error processing request")
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, validationErrors)
 	}
 
-	validationErrors := validators.ValidateProductCreateInput(input)
+	validationErrors = validators.ValidateProductCreateInput(input)
 
 	if validationErrors.HasErrors() {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"validation_errors": validationErrors,
-		})
-	}
-
-	if len(messages) > 0 {
-		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, validationErrors)
 	}
 
 	product, err := h.ProductService.CreateProduct(c.Context(), input)
 
 	if err != nil {
-		messages = append(messages, "product was not created")
-		return util.ErrorReponse(c, fiber.StatusNotFound, nil, messages)
+		validationErrors.AddError("msg", "product was not created")
+		return util.ErrorReponse(c, fiber.StatusNotFound, nil, validationErrors)
 	}
 
 	response := make(map[string]interface{})
@@ -96,36 +89,31 @@ func (h *ProductHandler) CreateProduct(c *fiber.Ctx) error {
 
 func (h *ProductHandler) UpdateProduct(c *fiber.Ctx) error {
 	ID, err := c.ParamsInt("id", 0)
-	messages := make([]string, 0)
+
+	var validationErrors = validators.ValidationErrors{}
 
 	if err != nil || ID <= 0 {
-		messages = append(messages, "id is not valid")
-		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+		validationErrors.AddError("msg", "id is not valid")
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, validationErrors)
 	}
 
 	var input services.ProductUpdateInput
 	if err := c.BodyParser(&input); err != nil {
-		messages = append(messages, "error processing request")
-		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+		validationErrors.AddError("msg", "error processing request")
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, validationErrors)
 	}
 
-	validationErrors := validators.ValidateProductUpdateInput(input)
+	validationErrors = validators.ValidateProductUpdateInput(input)
 
 	if validationErrors.HasErrors() {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"validation_errors": validationErrors,
-		})
-	}
-
-	if len(messages) > 0 {
-		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, validationErrors)
 	}
 
 	product, err := h.ProductService.UpdateProduct(c.Context(), ID, input)
 
 	if err != nil {
-		messages = append(messages, err.Error())
-		return util.ErrorReponse(c, fiber.StatusNotFound, nil, messages)
+		validationErrors.AddError("msg", err.Error())
+		return util.ErrorReponse(c, fiber.StatusNotFound, nil, validationErrors)
 	}
 
 	response := make(map[string]interface{})
@@ -136,18 +124,18 @@ func (h *ProductHandler) UpdateProduct(c *fiber.Ctx) error {
 
 func (h *ProductHandler) DeleteProduct(c *fiber.Ctx) error {
 	ID, err := c.ParamsInt("id", 0)
-	messages := make([]string, 0)
+	var validationErrors = validators.ValidationErrors{}
 
 	if err != nil || ID <= 0 {
-		messages = append(messages, "id is not valid")
-		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+		validationErrors.AddError("msg", "id is not valid")
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, validationErrors)
 	}
 
 	err = h.ProductService.DeleteProduct(c.Context(), ID)
 
 	if err != nil {
-		messages = append(messages, err.Error())
-		return util.ErrorReponse(c, fiber.StatusNotFound, nil, messages)
+		validationErrors.AddError("msg", err.Error())
+		return util.ErrorReponse(c, fiber.StatusNotFound, nil, validationErrors)
 	}
 
 	response := make(map[string]interface{})

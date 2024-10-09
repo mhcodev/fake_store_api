@@ -7,6 +7,8 @@ import (
 
 	"github.com/mhcodev/fake_store_api/internal/models"
 	"github.com/mhcodev/fake_store_api/internal/repository/repositories"
+	"github.com/mhcodev/fake_store_api/pkg"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type UserService struct {
@@ -72,38 +74,163 @@ func (s *UserService) UserEmailIsAvailable(ctx context.Context, email string) (m
 	return response, nil
 }
 
-func (s *UserService) CreateUser(ctx context.Context, user *models.User) error {
-	isAvailable, _ := s.userRepository.UserEmailIsAvailable(ctx, user.Email)
-
-	if !isAvailable {
-		return errors.New("email is already used, try other email")
-	}
-
-	ok, err := s.userRepository.CreateUser(ctx, user)
-
-	if err != nil {
-		return err
-	}
-
-	if !ok {
-		return errors.New("user was not created, check your user data")
-	}
-
-	return nil
+type UserCreateInput struct {
+	UserTypeID *int    `json:"userTypeID"`
+	Name       *string `json:"name"`
+	Email      *string `json:"email"`
+	Password   *string `json:"password"`
+	Avatar     *string `json:"avatar"`
+	Phone      *string `json:"phone"`
+	Status     *int8   `json:"status"`
 }
 
-func (s *UserService) UpdateUser(ctx context.Context, user *models.User) error {
-	ok, err := s.userRepository.UpdateUser(ctx, user)
+func (s *UserService) CreateUser(ctx context.Context, input UserCreateInput) (*models.User, error) {
+	isAvailable, _ := s.userRepository.UserEmailIsAvailable(ctx, *input.Email)
+
+	if !isAvailable {
+		return nil, errors.New("email is already used, try other email")
+	}
+
+	userTypes, err := s.GetUserTypes(ctx)
 
 	if err != nil {
-		return err
+		return nil, errors.New("user types no available")
+	}
+
+	var typesAvailable []int
+
+	for _, userType := range userTypes {
+		typesAvailable = append(typesAvailable, userType.ID)
+	}
+
+	if len(typesAvailable) > 0 && !pkg.Includes(typesAvailable, *input.UserTypeID) {
+		return nil, errors.New("user type id is not valid")
+	}
+
+	passwordHashed, err := bcrypt.GenerateFromPassword([]byte(*input.Password), 10)
+
+	if err != nil {
+		return nil, errors.New("error generating password")
+	}
+
+	// Map input to user model
+	newUser := &models.User{
+		UserTypeID: *input.UserTypeID,
+		Name:       *input.Name,
+		Email:      *input.Email,
+		Password:   string(passwordHashed),
+		Avatar:     *input.Avatar,
+	}
+
+	if input.Avatar != nil {
+		newUser.Avatar = *input.Avatar
+	}
+
+	if input.Phone != nil {
+		newUser.Phone = *input.Phone
+	}
+
+	if input.Status != nil {
+		newUser.Status = 1
+	}
+
+	ok, err := s.userRepository.CreateUser(ctx, newUser)
+
+	if err != nil {
+		return nil, err
 	}
 
 	if !ok {
-		return errors.New("user was not updated, check your user data")
+		return nil, errors.New("user was not created, check your user data")
 	}
 
-	return nil
+	return newUser, nil
+}
+
+type UserUpdateInput struct {
+	UserTypeID *int    `json:"userTypeID"`
+	Name       *string `json:"name"`
+	Email      *string `json:"email"`
+	Password   *string `json:"password"`
+	Avatar     *string `json:"avatar"`
+	Phone      *string `json:"phone"`
+	Status     *int8   `json:"status"`
+}
+
+func (s *UserService) UpdateUser(ctx context.Context, ID int, input UserUpdateInput) (*models.User, error) {
+
+	isAvailable, _ := s.userRepository.UserEmailIsAvailable(ctx, *input.Email)
+	user, err := s.GetUserByID(ctx, ID)
+
+	if err != nil {
+		return nil, errors.New("user not found")
+	}
+
+	if !isAvailable {
+		return nil, errors.New("email is already used, try other email")
+	}
+
+	userTypes, err := s.GetUserTypes(ctx)
+
+	if err != nil {
+		return nil, errors.New("user types no available")
+	}
+
+	var typesAvailable []int
+
+	for _, userType := range userTypes {
+		typesAvailable = append(typesAvailable, userType.ID)
+	}
+
+	if len(typesAvailable) > 0 && !pkg.Includes(typesAvailable, *input.UserTypeID) {
+		return nil, errors.New("user type id is not valid")
+	}
+
+	if input.Password != nil {
+		passwordHashed, err := bcrypt.GenerateFromPassword([]byte(*input.Password), 10)
+
+		if err != nil {
+			return nil, errors.New("error generating password")
+		}
+
+		user.Password = string(passwordHashed)
+	}
+
+	if input.UserTypeID != nil {
+		user.UserTypeID = *input.UserTypeID
+	}
+
+	if input.Name != nil {
+		user.Name = *input.Name
+	}
+
+	if input.Email != nil {
+		user.Email = *input.Email
+	}
+
+	if input.Avatar != nil {
+		user.Avatar = *input.Avatar
+	}
+
+	if input.Phone != nil {
+		user.Phone = *input.Phone
+	}
+
+	if input.Status != nil {
+		user.Status = 1
+	}
+
+	ok, err := s.userRepository.UpdateUser(ctx, &user)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if !ok {
+		return nil, errors.New("user was not updated, check your user data")
+	}
+
+	return &user, nil
 }
 
 func (s *UserService) DeletedUser(ctx context.Context, userID int) error {

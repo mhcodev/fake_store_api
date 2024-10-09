@@ -33,6 +33,11 @@ func IsNotEmpty(str *string) bool {
 	return str != nil && len(strings.TrimSpace(*str)) > 0
 }
 
+// IsNotEmpty checks if a string is empty after trimming
+func IsEmpty(str *string) bool {
+	return str != nil && len(strings.TrimSpace(*str)) == 0
+}
+
 // IsStringLength checks if a string length is within the given range
 func IsStringLength(str *string, min int, max int) bool {
 	if str == nil {

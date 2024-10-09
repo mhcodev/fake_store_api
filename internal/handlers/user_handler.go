@@ -9,7 +9,7 @@ import (
 	"github.com/mhcodev/fake_store_api/internal/models"
 	"github.com/mhcodev/fake_store_api/internal/services"
 	"github.com/mhcodev/fake_store_api/internal/util"
-	"golang.org/x/crypto/bcrypt"
+	"github.com/mhcodev/fake_store_api/internal/validators"
 )
 
 type UserHandler struct {
@@ -72,118 +72,69 @@ type UserEmailIsAvailableRequest struct {
 
 func (h *UserHandler) UserEmailIsAvailable(c *fiber.Ctx) error {
 	var request UserEmailIsAvailableRequest
-	messages := make([]string, 0)
+	var validationErrors = validators.ValidationErrors{}
 
 	// Parse the request body into the struct
 	if err := c.BodyParser(&request); err != nil {
-		messages = append(messages, "Error processing request")
-		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+		validationErrors.AddError("msg", "Error processing request")
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, validationErrors)
 	}
 
 	if request.Email == "" {
-		messages = append(messages, "email is empty, ensure you send an email")
-		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+		validationErrors.AddError("msg", "email is empty, ensure you send an email")
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, validationErrors)
 	}
 
 	email := strings.ToLower(request.Email)
 
 	if email == "none" {
-		messages = append(messages, "email is empty, ensure you send an email")
-		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+		validationErrors.AddError("msg", "email is empty, ensure you send an email")
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, validationErrors)
 	}
 
 	response, err := h.UserService.UserEmailIsAvailable(c.Context(), email)
 
 	if err != nil {
-		messages = append(messages, err.Error())
-		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+		validationErrors.AddError("msg", err.Error())
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, validationErrors)
 	}
 
 	return util.SuccessReponse(c, response)
 }
 
-type CreateUserRequest struct {
-	User models.User `json:"user"`
-}
-
 func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
-	var request CreateUserRequest
-	messages := make([]string, 0)
+	var input services.UserCreateInput
+	var validationErrors = validators.ValidationErrors{}
 
 	// Parse the request body into the struct
-	if err := c.BodyParser(&request); err != nil {
-		messages = append(messages, "Error processing request")
-		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+	if err := c.BodyParser(&input); err != nil {
+		validationErrors.AddError("msg", "Error processing request")
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, validationErrors)
 	}
 
-	user := request.User
+	if validators.IsNotEmpty(input.Email) && !validators.IsValidEmail(*input.Email) {
+		validationErrors.AddError("email", "email is not valid")
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, validationErrors)
+	}
 
-	userTypes, err := h.UserService.GetUserTypes(c.Context())
+	validationErrors = validators.ValidateUserCreateInput(input)
+
+	if validationErrors.HasErrors() {
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, validationErrors)
+	}
+
+	emailIsUsed, err := h.UserService.UserEmailIsAvailable(c.Context(), *input.Email)
+
+	if err != nil || emailIsUsed["isAvailable"] == false {
+		validationErrors.AddError("email", "email is already used")
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, validationErrors)
+	}
+
+	user, err := h.UserService.CreateUser(c.Context(), input)
 
 	if err != nil {
-		messages = append(messages, "user types no available")
-		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
-	}
-
-	var typesAvailable []int
-
-	for _, userType := range userTypes {
-		typesAvailable = append(typesAvailable, userType.ID)
-	}
-
-	if len(typesAvailable) > 0 && !util.Includes(typesAvailable, user.UserTypeID) {
-		messages = append(messages, "user type id is not valid")
-		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
-	}
-
-	if strings.TrimSpace(request.User.Name) == "" {
-		messages = append(messages, "name is required")
-	}
-
-	if strings.TrimSpace(request.User.Email) == "" {
-		messages = append(messages, "email is required")
-	} else {
-		response, _ := h.UserService.UserEmailIsAvailable(c.Context(), strings.TrimSpace(request.User.Email))
-
-		if response["isAvailable"] == false {
-			messages = append(messages, "email is already used")
-		}
-	}
-
-	if strings.TrimSpace(request.User.Password) == "" {
-		messages = append(messages, "password is required")
-	} else {
-		password := strings.TrimSpace(request.User.Password)
-		passwordHashed, err := bcrypt.GenerateFromPassword([]byte(password), 10)
-
-		if err != nil {
-			messages = append(messages, "password is not valid")
-			return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
-		}
-
-		user.Password = string(passwordHashed)
-	}
-
-	if strings.TrimSpace(request.User.Avatar) != "" {
-		isImage, err := util.IsImageURL(strings.TrimSpace(request.User.Avatar))
-		if err != nil {
-			messages = append(messages, "avatar has to be a valid image")
-		} else if !isImage {
-			messages = append(messages, "avatar has to be a valid image")
-		} else {
-			user.Avatar = strings.TrimSpace(request.User.Avatar)
-		}
-	}
-
-	if len(messages) > 0 {
-		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
-	}
-
-	err = h.UserService.CreateUser(c.Context(), &user)
-
-	if err != nil {
-		messages = append(messages, "user no created, check user payload")
-		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+		validationErrors.AddError("msg", "user no created, check your body request")
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, validationErrors)
 	}
 
 	response := make(map[string]interface{})
@@ -198,120 +149,66 @@ type UpdateUserRequest struct {
 }
 
 func (h *UserHandler) UpdateUser(c *fiber.Ctx) error {
-	var request UpdateUserRequest
-	messages := make([]string, 0)
+	var input services.UserUpdateInput
+	var validationErrors = validators.ValidationErrors{}
 
 	// Parse the request body into the struct
-	if err := c.BodyParser(&request); err != nil {
-		messages = append(messages, "Error processing request")
-		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+	if err := c.BodyParser(&input); err != nil {
+		validationErrors.AddError("msg", "error processing request")
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, validationErrors)
 	}
 
-	userID, err := strconv.Atoi(c.Params("id", "0"))
+	userID, err := c.ParamsInt("id", 0)
+
+	if err != nil || userID == 0 {
+		validationErrors.AddError("msg", "user id is not valid")
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, validationErrors)
+	}
+
+	_, err = h.UserService.GetUserByID(c.Context(), userID)
 
 	if err != nil {
-		messages = append(messages, "user id is not valid")
-		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+		validationErrors.AddError("msg", "user not found")
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, validationErrors)
 	}
 
-	user, err := h.UserService.GetUserByID(c.Context(), userID)
+	validationErrors = validators.ValidateUserUpdateInput(input)
+
+	userUpdated, err := h.UserService.UpdateUser(c.Context(), userID, input)
 
 	if err != nil {
-		messages = append(messages, "user not found")
-		return util.ErrorReponse(c, fiber.StatusNotFound, nil, messages)
-	}
-
-	userTypes, err := h.UserService.GetUserTypes(c.Context())
-
-	if err != nil {
-		messages = append(messages, "user types no available")
-		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
-	}
-
-	if strings.TrimSpace(request.User.Name) != "" {
-		user.Name = strings.TrimSpace(request.User.Name)
-	}
-
-	if strings.TrimSpace(request.User.Email) != "" {
-		user.Name = strings.TrimSpace(request.User.Email)
-	}
-
-	if strings.TrimSpace(request.User.Password) != "" {
-		password := strings.TrimSpace(request.User.Password)
-		passwordHashed, err := bcrypt.GenerateFromPassword([]byte(password), 10)
-
-		if err != nil {
-			messages = append(messages, "password is not valid")
-			return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
-		}
-
-		user.Password = string(passwordHashed)
-	}
-
-	if strings.TrimSpace(request.User.Avatar) != "" {
-		isImage, err := util.IsImageURL(strings.TrimSpace(request.User.Avatar))
-		if err != nil {
-			messages = append(messages, "avatar has to be a valid image")
-		} else if !isImage {
-			messages = append(messages, "avatar has to be a valid image")
-		} else {
-			user.Avatar = strings.TrimSpace(request.User.Avatar)
-		}
-	}
-
-	if strings.TrimSpace(request.User.Phone) != "" {
-		user.Phone = strings.TrimSpace(request.User.Phone)
-	}
-
-	var typesAvailable []int
-
-	for _, userType := range userTypes {
-		typesAvailable = append(typesAvailable, userType.ID)
-	}
-
-	if len(typesAvailable) > 0 && !util.Includes(typesAvailable, user.UserTypeID) {
-		messages = append(messages, "user type id is not valid")
-	}
-
-	if len(messages) > 0 {
-		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
-	}
-
-	err = h.UserService.UpdateUser(c.Context(), &user)
-
-	if err != nil {
-		messages = append(messages, err.Error())
-		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+		validationErrors.AddError("msg", err.Error())
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, validationErrors)
 	}
 
 	response := make(map[string]interface{})
-	response["user"] = user
+	response["user"] = userUpdated
 
 	// Return user as JSON
 	return util.SuccessReponse(c, response)
 }
 
 func (h *UserHandler) DeleteUser(c *fiber.Ctx) error {
-	messages := make([]string, 0)
 	userID, err := strconv.Atoi(c.Params("id", "0"))
+	var validationErrors = validators.ValidationErrors{}
 
 	if err != nil {
-		messages = append(messages, "user id is not valid")
-		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+		validationErrors.AddError("msg", "user id is not valid")
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, validationErrors)
 	}
 
 	_, err = h.UserService.GetUserByID(c.Context(), userID)
 
 	if err != nil {
-		messages = append(messages, "user doesn't exist")
-		return util.ErrorReponse(c, fiber.StatusNotFound, nil, messages)
+		validationErrors.AddError("msg", "user doesn't exist")
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, validationErrors)
 	}
 
 	err = h.UserService.DeletedUser(c.Context(), userID)
 
 	if err != nil {
-		messages = append(messages, err.Error())
-		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, messages)
+		validationErrors.AddError("msg", err.Error())
+		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, validationErrors)
 	}
 
 	response := make(map[string]interface{})

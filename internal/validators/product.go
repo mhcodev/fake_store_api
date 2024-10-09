@@ -19,6 +19,7 @@ func ValidateProductCreateInput(input services.ProductCreateInput) ValidationErr
 		input.Discount == nil &&
 		input.Status == nil {
 		validationErrors.AddError("error", "body request is not valid or empty")
+		return validationErrors
 	}
 
 	if input.CategoryID == nil || (*input.CategoryID <= 0) {
@@ -69,6 +70,7 @@ func ValidateProductUpdateInput(input services.ProductUpdateInput) ValidationErr
 		input.Discount == nil &&
 		input.Status == nil {
 		validationErrors.AddError("error", "body request is not valid or empty")
+		return validationErrors
 	}
 
 	if input.CategoryID != nil && (*input.CategoryID <= 0) {
