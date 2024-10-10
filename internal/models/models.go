@@ -48,3 +48,33 @@ type Product struct {
 	CreatedAt   time.Time `json:"createdAt"`
 	UpdatedAt   time.Time `json:"updatedAt"`
 }
+
+type Order struct {
+	ID              int       `json:"id"`
+	UserID          int       `json:"userID"`
+	UserEmail       string    `json:"userEmail"`
+	UserName        string    `json:"userName"`
+	Quantity        float32   `json:"quantity"`
+	Subtotal        float32   `json:"subtotal"`
+	DiscountTotal   float32   `json:"discountTotal"`
+	Total           float32   `json:"total"`
+	ShippingAddress string    `json:"ShippingAddress"`
+	Status          int8      `json:"status"`
+	CreatedAt       time.Time `json:"createdAt"`
+	UpdatedAt       time.Time `json:"updatedAt"`
+}
+
+type OrderDetail struct {
+	ID               int       `json:"id"`
+	OrderID          int       `json:"orderID"`
+	ProductID        string    `json:"productID"`
+	ProductSku       string    `json:"productSKU"`
+	CategoryName     string    `json:"categoryName"`
+	ProductName      string    `json:"productName"`
+	ProductPriceUnit string    `json:"productPriceUnit"`
+	ProductQuantity  string    `json:"productQuantity"`
+	ProductSubtotal  string    `json:"productSubtotal"`
+	Status           int8      `json:"status"`
+	CreatedAt        time.Time `json:"createdAt"`
+	UpdatedAt        time.Time `json:"updatedAt"`
+}
