@@ -8,19 +8,19 @@ import (
 )
 
 type DBRepository struct {
+	AuthRepository     repositories.AuthRepository
 	UserRepository     repositories.UserRepository
 	CategoryRepository repositories.CategoryRepository
 	ProductRepository  repositories.ProductRepository
-	OrderRepository    repositories.OrderRepository
 }
 
 func InitPosgresRepositories() (*DBRepository, *pgxpool.Pool) {
 	conn := driver.ConnectToPostgresDB()
 
 	return &DBRepository{
+		AuthRepository:     postgresrepository.NewPostgresAuthRepository(conn),
 		UserRepository:     postgresrepository.NewPostgresUserRepository(conn),
 		CategoryRepository: postgresrepository.NewPostgresCategoryRepository(conn),
 		ProductRepository:  postgresrepository.NewPostgresProductRepository(conn),
-		OrderRepository:    postgresrepository.NewPostgresOrderRepository(conn),
 	}, conn
 }

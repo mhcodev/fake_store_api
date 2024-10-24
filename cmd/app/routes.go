@@ -10,6 +10,13 @@ func setupRoutes(app *fiber.App, ch *container.ContainerHandler) {
 
 	v1 := api.Group("/v1")
 
+	// ============= Auth routes ================
+	v1.Route("/auth", func(router fiber.Router) {
+		router.Post("/login", ch.AuthHandler.Login)
+		router.Get("/data", ch.AuthHandler.GetTokenData)
+		router.Post("/refresh", ch.AuthHandler.AccessTokenFromRefreshToken)
+	})
+
 	// ============= User routes ================
 	v1.Route("/user", func(router fiber.Router) {
 		router.Get("/", ch.UserHandler.GetUsersByParams)
@@ -38,8 +45,4 @@ func setupRoutes(app *fiber.App, ch *container.ContainerHandler) {
 		router.Delete("/:id", ch.ProductHandler.DeleteProduct)
 	})
 
-	// ============= Order routes ================
-	v1.Route("/order", func(router fiber.Router) {
-		router.Get("/", ch.OrderHandler.GetOrdersByParams)
-	})
 }

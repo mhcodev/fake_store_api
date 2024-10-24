@@ -16,7 +16,6 @@ func NewOrderHandler(orderService *services.OrderService) *OrderHandler {
 }
 
 func (h *OrderHandler) GetOrdersByParams(c *fiber.Ctx) error {
-
 	params := models.QueryParams{
 		Limit:  10,
 		Offset: 10,

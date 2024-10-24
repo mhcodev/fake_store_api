@@ -1,7 +1,6 @@
 package validators
 
 import (
-	"fmt"
 	"regexp"
 	"strings"
 )
@@ -19,7 +18,7 @@ func (ve ValidationErrors) HasErrors() bool {
 }
 
 func (ve ValidationErrors) Error() string {
-	return fmt.Sprintf("validation failed")
+	return "validation failed"
 }
 
 // IsValidEmail validates email format using a regex
