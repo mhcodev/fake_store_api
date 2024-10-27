@@ -105,7 +105,7 @@ func (h *AuthHandler) AccessTokenFromRefreshToken(c *fiber.Ctx) error {
 		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, validationErrors)
 	}
 
-	accessToken, err := h.AuthService.GetNewToken(c.Context(), input)
+	tokenData, err := h.AuthService.GetNewToken(c.Context(), input)
 
 	if err != nil {
 		validationErrors.AddError("msg", err.Error())
@@ -113,7 +113,10 @@ func (h *AuthHandler) AccessTokenFromRefreshToken(c *fiber.Ctx) error {
 	}
 
 	response := make(map[string]interface{})
-	response["accessToken"] = accessToken
+
+	for k, v := range tokenData {
+		response[k] = v
+	}
 
 	return util.SuccessReponse(c, response)
 }

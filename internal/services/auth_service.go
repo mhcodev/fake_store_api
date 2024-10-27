@@ -57,18 +57,31 @@ type NewTokenInput struct {
 	RefreshToken *string `json:"refreshToken"`
 }
 
-func (as *AuthService) GetNewToken(ctx context.Context, input NewTokenInput) (string, error) {
+func (as *AuthService) GetNewToken(ctx context.Context, input NewTokenInput) (map[string]string, error) {
 	claims, err := pkg.ExtractClaims(*input.RefreshToken)
 
+	delete(claims, "exp")
+
 	if err != nil {
-		return "", err
+		return nil, err
 	}
+
+	tokenMap := make(map[string]string, 0)
 
 	accessToken, err := pkg.GenerateAccessToken(claims)
 
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return accessToken, nil
+	refreshToken, err := pkg.GenerateRefreshToken(claims)
+
+	tokenMap["accessToken"] = accessToken
+	tokenMap["refreshToken"] = refreshToken
+
+	if err != nil {
+		return nil, err
+	}
+
+	return tokenMap, nil
 }

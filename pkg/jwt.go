@@ -43,7 +43,6 @@ func GenerateRefreshToken(data map[string]interface{}) (string, error) {
 // ValidateToken returns a token validated
 func ValidateToken(tokenStr string) (*jwt.Token, error) {
 	return jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
-		fmt.Println("token header", token.Header)
 		// Ensure the signing method is HMAC
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
