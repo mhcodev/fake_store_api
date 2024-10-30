@@ -3,6 +3,7 @@ package postgresrepository
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/mhcodev/fake_store_api/internal/models"
@@ -31,9 +32,29 @@ func (p *PostgresUserRepository) GetUsersByParams(ctx context.Context, params mo
 		status,
 		created_at,
 		updated_at
-	from tb_users
-	LIMIT $1
-	OFFSET $2`
+	from tb_users`
+
+	mapParams := params.MapParams
+
+	var queryParams string
+
+	if name := mapParams["name"]; name != "" {
+		queryParams = fmt.Sprintf("name='%s'", name)
+	} else if userTypeID := mapParams["type"]; userTypeID != "" && userTypeID != -1 {
+		queryParams = fmt.Sprintf("user_type_id=%d", userTypeID)
+	} else if email := mapParams["email"]; email != "" {
+		queryParams = fmt.Sprintf("email='%s'", email)
+	} else if status := mapParams["status"]; status != "" && status != -1 {
+		queryParams = fmt.Sprintf("status=%d", status)
+	}
+
+	if queryParams != "" {
+		query += " WHERE "
+		query += fmt.Sprintf("%s ", queryParams)
+		query += " LIMIT $1 OFFSET $2"
+	} else {
+		query += " LIMIT $1 OFFSET $2"
+	}
 
 	rows, err := p.conn.Query(ctx, query, params.Limit, params.Offset)
 

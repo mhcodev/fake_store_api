@@ -3,9 +3,10 @@ package models
 import "time"
 
 type QueryParams struct {
-	Limit  int    `json:"limit"`
-	Offset int    `json:"offset"`
-	Query  string `json:"query"`
+	Limit     int                    `json:"limit"`
+	Offset    int                    `json:"offset"`
+	Query     string                 `json:"query"`
+	MapParams map[string]interface{} `json:"params"`
 }
 
 type User struct {

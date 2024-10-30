@@ -23,17 +23,22 @@ func NewUserHandler(userService *services.UserService) *UserHandler {
 func (h *UserHandler) GetUsersByParams(c *fiber.Ctx) error {
 	// Call the service to get user details
 	var params models.QueryParams
-	limit, err := strconv.Atoi(c.Query("limit", "0"))
 
-	if err != nil {
-		limit = 15
-	}
+	limit := c.QueryInt("limit", 15)
+	offset := c.QueryInt("offset", 0)
 
-	offset, err := strconv.Atoi(c.Query("offset", "0"))
+	name := c.Query("name")
+	userTypeID := c.QueryInt("type", -1)
+	email := c.Query("email")
+	status := c.QueryInt("status", -1)
 
-	if err != nil {
-		offset = 0
-	}
+	params.MapParams = make(map[string]interface{}, 0)
+	params.MapParams["limit"] = limit
+	params.MapParams["offset"] = offset
+	params.MapParams["name"] = name
+	params.MapParams["type"] = userTypeID
+	params.MapParams["email"] = email
+	params.MapParams["status"] = status
 
 	params.Limit = limit
 	params.Offset = offset
@@ -44,8 +49,9 @@ func (h *UserHandler) GetUsersByParams(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	// Return user as JSON
-	return c.JSON(users)
+	response := make(map[string]interface{}, 0)
+	response["users"] = users
+	return util.SuccessReponse(c, response)
 }
 
 func (h *UserHandler) GetUserByID(c *fiber.Ctx) error {
@@ -56,14 +62,16 @@ func (h *UserHandler) GetUserByID(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	users, err := h.UserService.GetUserByID(c.Context(), userID)
+	user, err := h.UserService.GetUserByID(c.Context(), userID)
 
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
 	// Return user as JSON
-	return c.JSON(users)
+	response := make(map[string]interface{}, 0)
+	response["user"] = user
+	return util.SuccessReponse(c, response)
 }
 
 type UserEmailIsAvailableRequest struct {
