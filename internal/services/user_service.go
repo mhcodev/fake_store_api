@@ -158,16 +158,10 @@ type UserUpdateInput struct {
 }
 
 func (s *UserService) UpdateUser(ctx context.Context, ID int, input UserUpdateInput) (*models.User, error) {
-
-	isAvailable, _ := s.userRepository.UserEmailIsAvailable(ctx, *input.Email)
 	user, err := s.GetUserByID(ctx, ID)
 
 	if err != nil {
 		return nil, errors.New("user not found")
-	}
-
-	if !isAvailable {
-		return nil, errors.New("email is already used, try other email")
 	}
 
 	userTypes, err := s.GetUserTypes(ctx)

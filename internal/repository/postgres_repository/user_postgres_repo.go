@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/mhcodev/fake_store_api/internal/models"
@@ -39,7 +40,7 @@ func (p *PostgresUserRepository) GetUsersByParams(ctx context.Context, params mo
 	var queryParams string
 
 	if name := mapParams["name"]; name != "" {
-		queryParams = fmt.Sprintf("name='%s'", name)
+		queryParams = fmt.Sprintf("LOWER(name)='%s'", strings.ToLower(name.(string)))
 	} else if userTypeID := mapParams["type"]; userTypeID != "" && userTypeID != -1 {
 		queryParams = fmt.Sprintf("user_type_id=%d", userTypeID)
 	} else if email := mapParams["email"]; email != "" {
@@ -213,7 +214,7 @@ func (p *PostgresUserRepository) UpdateUser(ctx context.Context, user *models.Us
 	rowsAffected := commandTag.RowsAffected()
 
 	if err != nil {
-		return false, err
+		return false, errors.New("no users were updated")
 	}
 
 	if rowsAffected <= 0 {
