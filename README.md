@@ -183,3 +183,126 @@
           "success": true
       }
      ```
+
+## Category Endpoints
+### GET /api/v1/category
+- **Description**: Fetch all categories
+- **URL Parameters**:
+  - `limit` (integer, optional): Quantity of rows (default 15)
+  - `offset` (integer, optional): Offset of rows (default 0)
+- **Response**:
+   - **Status Code**: 200 OK
+   - **Body**:
+     ```json
+      {
+          "categories": [
+              {
+                  "id": 1,
+                  "name": "Electronics",
+                  "imageURL": "https://caring-sunlight.info",
+                  "status": 0
+              },
+              {
+                  "id": 2,
+                  "name": "Forniture",
+                  "imageURL": "https://self-reliant-undertaker.org/",
+                  "status": 0
+              }
+          ],
+          "code": 200,
+          "success": true
+      }
+     ```
+### GET /api/v1/category/:id
+- **Description**: Fetch category by ID
+- **URL Parameters**:
+  - `id` (integer, required): id of the category
+- **Response**:
+   - **Status Code**: 200 OK
+   - **Body**:
+     ```json
+      {
+          "category": {
+              "id": 2,
+              "name": "Forniture",
+              "imageURL": "https://self-reliant-undertaker.org/",
+              "status": 1
+          },
+          "code": 200,
+          "success": true
+      }
+     ```
+### POST /api/v1/category
+- **Description**: Create a category
+- **JSON Body Parameters**:
+  - `name` (string, required): Name of the category
+  - `imageURL` (string, required): Image of the category
+  - Example
+    ```json
+    {
+        "category": {
+            "name": "Tecnology",
+            "imageURL": "https://totebagfactory.com/cdn/shop/products/Cotton-Canvas-Tote-Babgs-Natural.jpg?v=1552815941&width=1214"
+        }
+    }
+    ```
+- **Response**:
+   - **Status Code**: 200 OK
+   - **Body**:
+     ```json
+      {
+          "category": {
+              "id": 39,
+              "name": "Tecnology",
+              "imageURL": "https://totebagfactory.com/cdn/shop/products/Cotton-Canvas-Tote-Babgs-Natural.jpg?v=1552815941&width=1214",
+              "status": 1
+          },
+          "code": 200,
+          "success": true
+      }
+     ```
+### PUT /api/v1/category/:id
+- **Description**: Update a category by ID
+- **URL Parameters**:
+  - `id` (string, required): id of the category
+- **JSON Body Parameters**:
+  - `name` (string, required): Name of the category
+  - `imageURL` (string, required): Image of the category
+ - Example
+    ```json
+    {
+        "category": {
+            "name": "Tecnology v2",
+            "imageURL": "https://totebagfactory.com/cdn/shop/products/Cotton-Canvas-Tote-Babgs-Natural.jpg?v=1552815941&width=1214"
+        }
+    }
+    ```
+- **Response**:
+   - **Status Code**: 200 OK
+   - **Body**:
+     ```json
+      {
+          "category": {
+              "id": 39,
+              "name": "Tecnology v2",
+              "imageURL": "https://totebagfactory.com/cdn/shop/products/Cotton-Canvas-Tote-Babgs-Natural.jpg?v=1552815941&width=1214",
+              "status": 1
+          },
+          "code": 200,
+          "success": true
+      }
+     ```
+### DELETE /api/v1/category/:id
+- **Description**: Delete a category by ID
+- **URL Parameters**:
+  - `id` (string, required): id of the category
+- **Response**:
+   - **Status Code**: 200 OK
+   - **Body**:
+     ```json
+      {
+          "code": 200,
+          "msg": "category deleted",
+          "success": true
+      }
+     ```

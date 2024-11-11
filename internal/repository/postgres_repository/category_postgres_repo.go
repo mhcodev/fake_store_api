@@ -86,6 +86,7 @@ func (p *PostgresCategoryRepository) CreateCategory(ctx context.Context, categor
 	}
 
 	category.ID = categoryID
+	category.Status = 1
 
 	return nil
 }
