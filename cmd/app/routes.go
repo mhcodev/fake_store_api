@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/mhcodev/fake_store_api/internal/container"
+	"github.com/mhcodev/fake_store_api/internal/middleware"
 )
 
 func setupRoutes(app *fiber.App, ch *container.ContainerHandler) {
@@ -43,6 +44,14 @@ func setupRoutes(app *fiber.App, ch *container.ContainerHandler) {
 		router.Post("/", ch.ProductHandler.CreateProduct)
 		router.Put("/:id", ch.ProductHandler.UpdateProduct)
 		router.Delete("/:id", ch.ProductHandler.DeleteProduct)
+	})
+
+	// ============= Auth routes ================
+	v1.Route("/file", func(router fiber.Router) {
+		router.Post("/upload",
+			middleware.FileSizeLimit(5*1024*1024),
+			ch.FileHandler.UploadLoad,
+		)
 	})
 
 }

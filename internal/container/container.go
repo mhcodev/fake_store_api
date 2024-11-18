@@ -12,6 +12,7 @@ type ContainerService struct {
 	UserService     *services.UserService
 	CategoryService *services.CategoryService
 	ProductService  *services.ProductService
+	FileService     *services.FileService
 }
 
 func NewContainerService(DBRepo *repository.DBRepository) *ContainerService {
@@ -20,6 +21,7 @@ func NewContainerService(DBRepo *repository.DBRepository) *ContainerService {
 	userService := services.NewUserService(&DBRepo.UserRepository)
 	categoryService := services.NewCategoryService(&DBRepo.CategoryRepository)
 	productService := services.NewProductService(&DBRepo.ProductRepository)
+	fileService := services.NewFileService(&DBRepo.FileRepository)
 
 	// Return the container with all initialized dependencies
 	return &ContainerService{
@@ -27,6 +29,7 @@ func NewContainerService(DBRepo *repository.DBRepository) *ContainerService {
 		UserService:     userService,
 		CategoryService: categoryService,
 		ProductService:  productService,
+		FileService:     fileService,
 	}
 }
 
@@ -37,6 +40,7 @@ type ContainerHandler struct {
 	CategoryHandler *handlers.CategoryHandler
 	ProductHandler  *handlers.ProductHandler
 	OrderHandler    *handlers.OrderHandler
+	FileHandler     *handlers.FileHandler
 }
 
 func NewContainerHandler(cs *ContainerService) *ContainerHandler {
@@ -45,6 +49,7 @@ func NewContainerHandler(cs *ContainerService) *ContainerHandler {
 	userHandler := handlers.NewUserHandler(cs.UserService)
 	categoryHandler := handlers.NewCategoryHandler(cs.CategoryService)
 	productHandler := handlers.NewProductHandler(cs.ProductService)
+	fileHandler := handlers.NewFileHandler(cs.FileService)
 
 	// Return the container with all initialized dependencies
 	return &ContainerHandler{
@@ -52,5 +57,6 @@ func NewContainerHandler(cs *ContainerService) *ContainerHandler {
 		UserHandler:     userHandler,
 		CategoryHandler: categoryHandler,
 		ProductHandler:  productHandler,
+		FileHandler:     fileHandler,
 	}
 }

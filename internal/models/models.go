@@ -45,6 +45,8 @@ type Product struct {
 	Description string    `json:"description"`
 	Price       float32   `json:"price"`
 	Discount    float32   `json:"discount"`
+	Images      []string  `json:"images"`
+	Category    Category  `json:"category"`
 	Status      int8      `json:"status"`
 	CreatedAt   time.Time `json:"createdAt"`
 	UpdatedAt   time.Time `json:"updatedAt"`
@@ -78,4 +80,14 @@ type OrderDetail struct {
 	Status           int8      `json:"status"`
 	CreatedAt        time.Time `json:"createdAt"`
 	UpdatedAt        time.Time `json:"updatedAt"`
+}
+
+type File struct {
+	ID        int       `json:"id"`
+	FileName  string    `json:"filename"`
+	Type      string    `json:"type"`
+	Url       string    `json:"url"`
+	Status    int8      `json:"status"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }

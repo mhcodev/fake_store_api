@@ -2,3 +2,4 @@
 tmp/main
 tmp/build-errors.log
 .vscode
+/uploads/*
