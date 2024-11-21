@@ -12,6 +12,11 @@ import (
 	"github.com/mhcodev/fake_store_api/internal/repository"
 )
 
+const (
+	RequestMaxSize = 20 * 1024 * 1024
+	UploadDir      = "./uploads"
+)
+
 func main() {
 
 	// Load the .env file
@@ -31,13 +36,16 @@ func main() {
 		defer conn.Close()
 	}
 
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		BodyLimit:    RequestMaxSize,
+		ErrorHandler: middleware.ErrorHandler,
+	})
 
-	app.Use(middleware.RequestSizeLimit(20 * 1024 * 1024))
+	app.Use(middleware.RequestSizeLimit(RequestMaxSize))
 
 	// Ensure the uploads directory exists
-	os.MkdirAll("./uploads", os.ModePerm)
-	app.Static("/uploads", "./uploads")
+	os.MkdirAll(UploadDir, os.ModePerm)
+	app.Static("/uploads", UploadDir)
 
 	containerService := container.NewContainerService(dbRepo)
 	ch := container.NewContainerHandler(containerService)

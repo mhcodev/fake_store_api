@@ -7,7 +7,5 @@ import (
 )
 
 type FileRepository interface {
-	UploadFile(ctx context.Context, file *models.File) error
-	// GetFileByName(filename string) (models.File, error)
-	// DeleteFileByName(filename string) error
+	SaveFileToDB(ctx context.Context, file *models.File) error
 }

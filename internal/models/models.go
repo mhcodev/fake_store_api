@@ -83,11 +83,12 @@ type OrderDetail struct {
 }
 
 type File struct {
-	ID        int       `json:"id"`
-	FileName  string    `json:"filename"`
-	Type      string    `json:"type"`
-	Url       string    `json:"url"`
-	Status    int8      `json:"status"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	ID           int       `json:"id"`
+	OriginalName string    `json:"originalName"`
+	FileName     string    `json:"filename"`
+	Type         string    `json:"type"`
+	Url          string    `json:"url"`
+	Status       int8      `json:"status"`
+	CreatedAt    time.Time `json:"createdAt"`
+	UpdatedAt    time.Time `json:"updatedAt"`
 }

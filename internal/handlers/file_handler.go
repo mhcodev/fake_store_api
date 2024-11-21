@@ -1,13 +1,13 @@
 package handlers
 
 import (
-	"fmt"
-	"path/filepath"
+	"context"
+	"sync"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/mhcodev/fake_store_api/internal/services"
 	"github.com/mhcodev/fake_store_api/internal/util"
-	"github.com/mhcodev/fake_store_api/pkg"
 )
 
 type FileHandler struct {
@@ -19,7 +19,6 @@ func NewFileHandler(fileService *services.FileService) *FileHandler {
 }
 
 func (fh *FileHandler) UploadLoad(c *fiber.Ctx) error {
-
 	// Retrieve the file from the request
 	form, err := c.MultipartForm()
 
@@ -33,37 +32,18 @@ func (fh *FileHandler) UploadLoad(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).SendString("No files uploaded")
 	}
 
-	// Array to store uploaded file paths
-	var uploadedFiles []string
+	// Global context with timeout for the entire operation
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
-	// Process each file
-	for _, file := range files {
-		// Generate a unique filename
-		ext := filepath.Ext(file.Filename)
-		uniqueName := fmt.Sprintf("%s.%s", pkg.GenerateRandomString(6), ext)
+	var wg sync.WaitGroup
 
-		if ext != ".jpg" && ext != ".png" {
-			msg := fmt.Sprintf("Invalid file type for: %s", file.Filename)
-			return c.Status(fiber.StatusBadRequest).SendString(msg)
-		}
-
-		// Define the upload path
-		filePath := filepath.Join("./uploads", uniqueName)
-
-		// Save the file to the server
-		if err := c.SaveFile(file, filePath); err != nil {
-			return c.Status(fiber.StatusInternalServerError).SendString("Failed to save file: " + file.Filename)
-		}
-
-		fileURL := filepath.Join(c.Hostname(), "./uploads", uniqueName)
-
-		// Add the file path to the response array
-		uploadedFiles = append(uploadedFiles, fileURL)
-	}
+	results, errors := fh.fileService.ProcessFiles(ctx, files, &wg, c.BaseURL())
 
 	response := make(map[string]interface{}, 0)
 	response["msg"] = "Files uploaded successfully"
-	response["files"] = uploadedFiles
+	response["files"] = results
+	response["errors"] = errors
 
 	return util.SuccessReponse(c, response)
 }
