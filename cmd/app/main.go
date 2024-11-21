@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -49,8 +48,6 @@ func main() {
 
 	containerService := container.NewContainerService(dbRepo)
 	ch := container.NewContainerHandler(containerService)
-
-	fmt.Println(ch)
 
 	setupRoutes(app, ch)
 
