@@ -41,7 +41,8 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	}
 
 	data := make(map[string]interface{}, 0)
-	data["user_id"] = user.ID
+	data["userID"] = user.ID
+	data["userTypeID"] = user.UserTypeID
 
 	accessToken, err := pkg.GenerateAccessToken(data)
 
