@@ -34,9 +34,14 @@ func (p *PostgresProductRepository) GetProductsByParams(ctx context.Context, par
 			created_at,
 			updated_at
 		FROM tb_products
+		LIMIT $1
+		OFFSET $2
 	`
 
-	rows, err := p.conn.Query(ctx, query)
+	rows, err := p.conn.Query(ctx, query,
+		&params.Limit,
+		&params.Offset,
+	)
 
 	var products []models.Product
 

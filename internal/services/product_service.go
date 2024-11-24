@@ -22,6 +22,15 @@ func NewProductService(productRepository *repositories.ProductRepository) *Produ
 }
 
 func (ps *ProductService) GetProductsByParams(ctx context.Context, params models.QueryParams) ([]models.Product, error) {
+	// Checks limit & offset default value
+	if params.Limit < 1 {
+		params.Limit = 15
+	}
+
+	if params.Offset < 0 {
+		params.Offset = 0
+	}
+
 	products, err := ps.productRepository.GetProductsByParams(ctx, params)
 
 	if err != nil {

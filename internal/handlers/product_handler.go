@@ -19,7 +19,15 @@ func NewProductHandler(productService *services.ProductService) *ProductHandler 
 }
 
 func (h *ProductHandler) GetProductsByParams(c *fiber.Ctx) error {
-	products, err := h.ProductService.GetProductsByParams(c.Context(), models.QueryParams{})
+	limit := c.QueryInt("limit", 15)
+	offset := c.QueryInt("offset", 0)
+
+	parmas := models.QueryParams{
+		Limit:  limit,
+		Offset: offset,
+	}
+
+	products, err := h.ProductService.GetProductsByParams(c.Context(), parmas)
 	var validationErrors validators.ValidationErrors
 
 	if err != nil {
