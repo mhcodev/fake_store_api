@@ -68,6 +68,8 @@ func (ps *ProductService) GetProductByID(ctx context.Context, ID int) (models.Pr
 		urls = append(urls, image.ImageURL)
 	}
 
+	product.Images = urls
+
 	return product, nil
 }
 
