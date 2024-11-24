@@ -1,9 +1,11 @@
 package validators
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/mhcodev/fake_store_api/internal/services"
+	"github.com/mhcodev/fake_store_api/pkg"
 )
 
 // Validates the product input for create operation
@@ -52,6 +54,21 @@ func ValidateProductCreateInput(input services.ProductCreateInput) ValidationErr
 
 	if input.Status != nil && (*input.Status < 0 || *input.Status > 100) {
 		validationErrors.AddError("status", "status must be between 0 and 100")
+	}
+
+	if input.Images != nil {
+		if len(*input.Images) > 6 {
+			validationErrors.AddError("images", "max. 6 images per product")
+		} else {
+			for _, imageURL := range *input.Images {
+				isValid, err := pkg.IsImageURL(imageURL)
+
+				if err != nil || !isValid {
+					msg := fmt.Sprintf("%s is not a valid image url", imageURL)
+					validationErrors.AddError("images", msg)
+				}
+			}
+		}
 	}
 
 	return validationErrors
@@ -103,6 +120,21 @@ func ValidateProductUpdateInput(input services.ProductUpdateInput) ValidationErr
 
 	if input.Status != nil && (*input.Status < 0 || *input.Status > 100) {
 		validationErrors.AddError("status", "status must be between 0 and 100")
+	}
+
+	if input.Images != nil {
+		if len(*input.Images) > 6 {
+			validationErrors.AddError("images", "max. 6 images per product")
+		} else {
+			for _, imageURL := range *input.Images {
+				isValid, err := pkg.IsImageURL(imageURL)
+
+				if err != nil || !isValid {
+					msg := fmt.Sprintf("%s is not a valid image url", imageURL)
+					validationErrors.AddError("images", msg)
+				}
+			}
+		}
 	}
 
 	return validationErrors

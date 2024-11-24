@@ -157,14 +157,15 @@ func (ps *ProductService) CreateProduct(ctx context.Context, input ProductCreate
 }
 
 type ProductUpdateInput struct {
-	CategoryID  *int     `json:"categoryID"`
-	Sku         *string  `json:"sku"`
-	Name        *string  `json:"name"`
-	Stock       *int     `json:"stock"`
-	Description *string  `json:"description"`
-	Price       *float32 `json:"price"`
-	Discount    *float32 `json:"discount"`
-	Status      *int8    `json:"status"`
+	CategoryID  *int      `json:"categoryID"`
+	Sku         *string   `json:"sku"`
+	Name        *string   `json:"name"`
+	Stock       *int      `json:"stock"`
+	Description *string   `json:"description"`
+	Price       *float32  `json:"price"`
+	Discount    *float32  `json:"discount"`
+	Status      *int8     `json:"status"`
+	Images      *[]string `json:"images"`
 }
 
 func (ps *ProductService) UpdateProduct(ctx context.Context, ID int, input ProductUpdateInput) (*models.Product, error) {
@@ -214,6 +215,12 @@ func (ps *ProductService) UpdateProduct(ctx context.Context, ID int, input Produ
 
 	if input.Discount != nil {
 		product.Discount = *input.Discount
+	}
+
+	if input.Images != nil {
+		ps.productRepository.DeleteImagesByProduct(ctx, product.ID)
+		validImages, _ := ps.productRepository.AssiociateImagesToProduct(ctx, product.ID, *input.Images)
+		product.Images = validImages
 	}
 
 	err = ps.productRepository.UpdateProduct(ctx, &product)
