@@ -242,7 +242,7 @@ func (ps *ProductService) DeleteProduct(ctx context.Context, ID int) error {
 	err = ps.productRepository.DeleteProduct(ctx, ID)
 
 	if err != nil {
-		return errors.New("product was no deleted")
+		return errors.New(err.Error())
 	}
 
 	err = ps.productRepository.DeleteImagesByProduct(ctx, ID)

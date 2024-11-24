@@ -146,7 +146,7 @@ func (h *ProductHandler) DeleteProduct(c *fiber.Ctx) error {
 	}
 
 	response := make(map[string]interface{})
-	response["msg"] = fmt.Sprintf("product %d deleted", ID)
+	response["msg"] = fmt.Sprintf("product with ID %d deleted", ID)
 
 	return util.SuccessReponse(c, response)
 }

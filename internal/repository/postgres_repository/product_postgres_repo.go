@@ -256,7 +256,7 @@ func (p *PostgresProductRepository) UpdateProduct(ctx context.Context, product *
 func (p *PostgresProductRepository) DeleteProduct(ctx context.Context, ID int) error {
 	query := `
 		UPDATE tb_products
-		SET status = $1
+		SET status = $1,
 			updated_at = now()
 		WHERE id = $2;
 	`
@@ -369,8 +369,8 @@ func (p *PostgresProductRepository) GetImagesByProduct(ctx context.Context, prod
 
 func (p *PostgresProductRepository) DeleteImagesByProduct(ctx context.Context, prodID int) error {
 	query := `
-		UPDATE tb_products
-		SET status = $1
+		UPDATE tb_product_images
+		SET status = $1,
 			updated_at = now()
 		WHERE id = $2 and status = 1;
 	`
