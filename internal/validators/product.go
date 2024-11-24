@@ -31,7 +31,7 @@ func ValidateProductCreateInput(input services.ProductCreateInput) ValidationErr
 	}
 
 	if input.Name == nil || strings.TrimSpace(*input.Name) == "" {
-		validationErrors.AddError("name", "name is not valid")
+		validationErrors.AddError("name", "name is required")
 	}
 
 	if input.Stock != nil && (*input.Stock > 10000 || *input.Stock < 0) {

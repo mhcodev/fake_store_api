@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/mhcodev/fake_store_api/internal/models"
@@ -35,6 +36,29 @@ func (p *PostgresProductRepository) GetTotalOfProducts(ctx context.Context) (int
 	}
 
 	return count, nil
+}
+
+// SkuIsAvailable checks if product sku is available (duplication is not allowed)
+func (p *PostgresProductRepository) SkuIsAvailable(ctx context.Context, sku string) (bool, error) {
+	query := `
+		SELECT COUNT(*) as total
+		FROM tb_products
+		WHERE UPPER(sku) = $1 AND status = 1;
+	`
+
+	var count int
+
+	err := p.conn.QueryRow(ctx, query,
+		strings.ToUpper(sku),
+	).Scan(&count)
+
+	if err != nil {
+		return false, err
+	}
+
+	isAvailable := count == 0
+
+	return isAvailable, nil
 }
 
 func (p *PostgresProductRepository) GetProductsByParams(ctx context.Context, params models.QueryParams) ([]models.Product, error) {

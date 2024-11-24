@@ -66,10 +66,6 @@ func (h *ProductHandler) GetProductByID(c *fiber.Ctx) error {
 	return util.SuccessReponse(c, response)
 }
 
-type CreateProductRequest struct {
-	Product models.Product `json:"product"`
-}
-
 func (h *ProductHandler) CreateProduct(c *fiber.Ctx) error {
 	var input services.ProductCreateInput
 	var validationErrors = validators.ValidationErrors{}
@@ -88,7 +84,7 @@ func (h *ProductHandler) CreateProduct(c *fiber.Ctx) error {
 	product, err := h.ProductService.CreateProduct(c.Context(), input)
 
 	if err != nil {
-		validationErrors.AddError("msg", "product was not created")
+		validationErrors.AddError("msg", err.Error())
 		return util.ErrorReponse(c, fiber.StatusNotFound, nil, validationErrors)
 	}
 

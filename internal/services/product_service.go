@@ -105,7 +105,6 @@ type ProductCreateInput struct {
 }
 
 func (ps *ProductService) CreateProduct(ctx context.Context, input ProductCreateInput) (*models.Product, error) {
-
 	// Map input to product model
 	newProduct := &models.Product{
 		CategoryID:  *input.CategoryID,
@@ -113,14 +112,28 @@ func (ps *ProductService) CreateProduct(ctx context.Context, input ProductCreate
 		Slug:        pkg.GenerateSlug(*input.Name),
 		Description: *input.Description,
 		Price:       *input.Price,
-		Stock:       *input.Stock,
-		Discount:    *input.Discount,
+		Stock:       0,
+		Discount:    0,
 	}
 
 	if input.Sku == nil {
 		newProduct.Sku = pkg.GenerateRandomString(8)
 	} else {
-		newProduct.Sku = *input.Sku
+		skuIsAvailable, _ := ps.productRepository.SkuIsAvailable(ctx, *input.Sku)
+
+		if skuIsAvailable {
+			newProduct.Sku = *input.Sku
+		} else {
+			return &models.Product{}, errors.New("sku is not available")
+		}
+	}
+
+	if input.Stock != nil {
+		newProduct.Stock = *input.Stock
+	}
+
+	if input.Discount != nil {
+		newProduct.Discount = *input.Discount
 	}
 
 	err := ps.productRepository.CreateProduct(ctx, newProduct)
@@ -172,7 +185,19 @@ func (ps *ProductService) UpdateProduct(ctx context.Context, ID int, input Produ
 	}
 
 	if input.Sku != nil {
-		product.Sku = *input.Sku
+		var skuIsAvailable bool
+
+		if product.Sku != *input.Sku {
+			skuIsAvailable, _ = ps.productRepository.SkuIsAvailable(ctx, *input.Sku)
+		} else {
+			skuIsAvailable = true
+		}
+
+		if skuIsAvailable {
+			product.Sku = *input.Sku
+		} else {
+			return &models.Product{}, errors.New("sku is not available")
+		}
 	}
 
 	if input.Description != nil {
