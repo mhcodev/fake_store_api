@@ -43,7 +43,10 @@ func (fh *FileHandler) UploadLoad(c *fiber.Ctx) error {
 	response := make(map[string]interface{}, 0)
 	response["msg"] = "Files uploaded successfully"
 	response["files"] = results
-	response["errors"] = errors
+
+	if len(errors) > 0 {
+		response["errors"] = errors
+	}
 
 	return util.SuccessReponse(c, response)
 }
