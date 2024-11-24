@@ -35,7 +35,10 @@ func (h *ProductHandler) GetProductsByParams(c *fiber.Ctx) error {
 		return util.ErrorReponse(c, fiber.StatusNotFound, nil, validationErrors)
 	}
 
+	count, _ := h.ProductService.GetTotalOfProducts(c.Context())
+
 	response := make(map[string]interface{})
+	response["count"] = count
 	response["products"] = products
 
 	return util.SuccessReponse(c, response)

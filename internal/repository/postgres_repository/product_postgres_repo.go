@@ -18,6 +18,25 @@ func NewPostgresProductRepository(conn *pgxpool.Pool) *PostgresProductRepository
 	return &PostgresProductRepository{conn: conn}
 }
 
+// GetTotalOfProducts returns the total quantity of active products
+func (p *PostgresProductRepository) GetTotalOfProducts(ctx context.Context) (int, error) {
+	query := `
+		SELECT COUNT(*) as total
+		FROM tb_products
+		WHERE status = 1;
+	`
+
+	var count int
+
+	err := p.conn.QueryRow(ctx, query).Scan(&count)
+
+	if err != nil {
+		return count, err
+	}
+
+	return count, nil
+}
+
 func (p *PostgresProductRepository) GetProductsByParams(ctx context.Context, params models.QueryParams) ([]models.Product, error) {
 	query := `
 		SELECT

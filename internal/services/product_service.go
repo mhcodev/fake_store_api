@@ -21,6 +21,16 @@ func NewProductService(productRepository *repositories.ProductRepository) *Produ
 	}
 }
 
+func (ps *ProductService) GetTotalOfProducts(ctx context.Context) (int, error) {
+	count, err := ps.productRepository.GetTotalOfProducts(ctx)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
 func (ps *ProductService) GetProductsByParams(ctx context.Context, params models.QueryParams) ([]models.Product, error) {
 	// Checks limit & offset default value
 	if params.Limit < 1 {
