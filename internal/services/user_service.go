@@ -22,6 +22,16 @@ func NewUserService(userRepository *repositories.UserRepository) *UserService {
 	}
 }
 
+func (ps *UserService) GetTotalUsers(ctx context.Context) (int, error) {
+	count, err := ps.userRepository.GetTotalUsers(ctx)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
 func (s *UserService) GetUsersByParams(ctx context.Context, params models.QueryParams) ([]models.User, error) {
 	if params.Limit < 1 {
 		params.Limit = 15

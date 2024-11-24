@@ -49,7 +49,10 @@ func (h *UserHandler) GetUsersByParams(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
+	count, _ := h.UserService.GetTotalUsers(c.Context())
+
 	response := make(map[string]interface{}, 0)
+	response["count"] = count
 	response["users"] = users
 	return util.SuccessReponse(c, response)
 }

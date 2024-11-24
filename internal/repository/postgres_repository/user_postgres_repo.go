@@ -18,6 +18,25 @@ func NewPostgresUserRepository(conn *pgxpool.Pool) *PostgresUserRepository {
 	return &PostgresUserRepository{conn: conn}
 }
 
+// GetTotalUsers returns the total quantity of active users
+func (p *PostgresUserRepository) GetTotalUsers(ctx context.Context) (int, error) {
+	query := `
+		SELECT COUNT(*) as total
+		FROM tb_users
+		WHERE status = 1;
+	`
+
+	var count int
+
+	err := p.conn.QueryRow(ctx, query).Scan(&count)
+
+	if err != nil {
+		return count, err
+	}
+
+	return count, nil
+}
+
 // GetUsersByParams search a list of users by params
 // @params - models.QueryParams
 func (p *PostgresUserRepository) GetUsersByParams(ctx context.Context, params models.QueryParams) ([]models.User, error) {
@@ -65,7 +84,7 @@ func (p *PostgresUserRepository) GetUsersByParams(ctx context.Context, params mo
 
 	defer rows.Close()
 
-	var users []models.User
+	users := make([]models.User, 0)
 
 	for rows.Next() {
 		var u models.User
