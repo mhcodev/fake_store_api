@@ -17,6 +17,16 @@ func NewCategoryService(categoryRepository *repositories.CategoryRepository) *Ca
 	}
 }
 
+func (cs *CategoryService) GetTotalOfCategories(ctx context.Context) (int, error) {
+	count, err := cs.categoryRepository.GetTotalOfCategories(ctx)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
 func (cs *CategoryService) GetCategories(ctx context.Context) ([]models.Category, error) {
 	return cs.categoryRepository.GetCategories(ctx)
 }

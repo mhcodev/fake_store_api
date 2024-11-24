@@ -29,7 +29,12 @@ func (h *CategoryHandler) GetCategories(c *fiber.Ctx) error {
 		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, validationErrors)
 	}
 
-	response := fiber.Map{"categories": categories}
+	count, _ := h.CategoryService.GetTotalOfCategories(c.Context())
+
+	response := fiber.Map{
+		"count":      count,
+		"categories": categories,
+	}
 
 	return util.SuccessReponse(c, response)
 }

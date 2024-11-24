@@ -16,6 +16,25 @@ func NewPostgresCategoryRepository(conn *pgxpool.Pool) *PostgresCategoryReposito
 	return &PostgresCategoryRepository{conn: conn}
 }
 
+// GetTotalOfCategories returns the total quantity of active categories
+func (p *PostgresCategoryRepository) GetTotalOfCategories(ctx context.Context) (int, error) {
+	query := `
+		SELECT COUNT(*) as total
+		FROM tb_categories
+		WHERE status = 1;
+	`
+
+	var count int
+
+	err := p.conn.QueryRow(ctx, query).Scan(&count)
+
+	if err != nil {
+		return count, err
+	}
+
+	return count, nil
+}
+
 // GetCategories returns a list of categories
 func (p *PostgresCategoryRepository) GetCategories(ctx context.Context) ([]models.Category, error) {
 	query := "SELECT id, name, image_url FROM tb_categories"

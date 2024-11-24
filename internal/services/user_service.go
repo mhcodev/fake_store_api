@@ -22,8 +22,8 @@ func NewUserService(userRepository *repositories.UserRepository) *UserService {
 	}
 }
 
-func (ps *UserService) GetTotalUsers(ctx context.Context) (int, error) {
-	count, err := ps.userRepository.GetTotalUsers(ctx)
+func (s *UserService) GetTotalUsers(ctx context.Context) (int, error) {
+	count, err := s.userRepository.GetTotalUsers(ctx)
 
 	if err != nil {
 		return 0, err
