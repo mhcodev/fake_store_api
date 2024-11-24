@@ -142,7 +142,7 @@ func (p *PostgresUserRepository) UserEmailIsAvailable(ctx context.Context, email
 	WHERE LOWER(email) = $1
 	LIMIT 1`
 
-	row := p.conn.QueryRow(ctx, query, email)
+	row := p.conn.QueryRow(ctx, query, strings.ToLower(email))
 	var userEmail string
 
 	err := row.Scan(&userEmail)
@@ -198,8 +198,9 @@ func (p *PostgresUserRepository) UpdateUser(ctx context.Context, user *models.Us
 		password = $4,
 		avatar = $5,
 		phone = $6,
+		status = $7,
 		updated_at = now()
-	WHERE id = $7`
+	WHERE id = $8`
 
 	commandTag, err := p.conn.Exec(ctx, query,
 		&user.UserTypeID,
@@ -208,16 +209,19 @@ func (p *PostgresUserRepository) UpdateUser(ctx context.Context, user *models.Us
 		&user.Password,
 		&user.Avatar,
 		&user.Phone,
+		&user.Status,
 		&user.ID,
 	)
 
 	rowsAffected := commandTag.RowsAffected()
 
 	if err != nil {
+		fmt.Println("error:", err.Error())
 		return false, errors.New("no users were updated")
 	}
 
 	if rowsAffected <= 0 {
+		fmt.Println("error:", "No rows affected")
 		return false, errors.New("no users were updated")
 	}
 

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"regexp"
+	"strings"
 
 	"github.com/mhcodev/fake_store_api/internal/models"
 	"github.com/mhcodev/fake_store_api/internal/repository/repositories"
@@ -176,7 +177,11 @@ func (s *UserService) UpdateUser(ctx context.Context, ID int, input UserUpdateIn
 		typesAvailable = append(typesAvailable, userType.ID)
 	}
 
-	if len(typesAvailable) > 0 && !pkg.Includes(typesAvailable, *input.UserTypeID) {
+	if input.UserTypeID != nil {
+		user.UserTypeID = *input.UserTypeID
+	}
+
+	if len(typesAvailable) > 0 && !pkg.Includes(typesAvailable, user.UserTypeID) {
 		return nil, errors.New("user type id is not valid")
 	}
 
@@ -190,16 +195,24 @@ func (s *UserService) UpdateUser(ctx context.Context, ID int, input UserUpdateIn
 		user.Password = string(passwordHashed)
 	}
 
-	if input.UserTypeID != nil {
-		user.UserTypeID = *input.UserTypeID
-	}
-
 	if input.Name != nil {
 		user.Name = *input.Name
 	}
 
 	if input.Email != nil {
-		user.Email = *input.Email
+		var emailIsAVailable bool
+
+		if !strings.EqualFold(user.Email, *input.Email) {
+			emailIsAVailable, _ = s.userRepository.UserEmailIsAvailable(ctx, *input.Email)
+		} else {
+			emailIsAVailable = true
+		}
+
+		if emailIsAVailable {
+			user.Email = *input.Email
+		} else {
+			return nil, errors.New("email is already used by other user")
+		}
 	}
 
 	if input.Avatar != nil {

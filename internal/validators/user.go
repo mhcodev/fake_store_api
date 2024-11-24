@@ -90,22 +90,22 @@ func ValidateUserUpdateInput(input services.UserUpdateInput) ValidationErrors {
 		validationErrors.AddError("email", "email is not valid")
 	}
 
-	if !IsNotEmpty(input.Password) {
+	if IsNotEmpty(input.Password) {
 		passSize := len(*input.Password)
 		if !IsInRange(&passSize, 6, 21) {
 			validationErrors.AddError("password", "password must be at least 6 characters up to 21 characters")
 		}
 	}
 
-	if !IsNotEmpty(input.Avatar) {
+	if IsNotEmpty(input.Avatar) {
 		if isImage, _ := pkg.IsImageURL(*input.Avatar); !isImage {
 			validationErrors.AddError("avatar", "avatar is not a valid image")
 		}
 	}
 
-	// if !IsNotEmpty(input.Phone) {
-	// 	validationErrors.AddError("phone", "phone is not valid")
-	// }
+	if !IsNotEmpty(input.Phone) {
+		validationErrors.AddError("phone", "phone is not valid")
+	}
 
 	return validationErrors
 }
