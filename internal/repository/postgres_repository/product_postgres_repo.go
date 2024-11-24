@@ -3,9 +3,11 @@ package postgresrepository
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/mhcodev/fake_store_api/internal/models"
+	"github.com/mhcodev/fake_store_api/pkg"
 )
 
 type PostgresProductRepository struct {
@@ -226,6 +228,120 @@ func (p *PostgresProductRepository) DeleteProduct(ctx context.Context, ID int) e
 
 	if rowsAffected <= 0 {
 		return errors.New("products were not deleted")
+	}
+
+	return nil
+}
+
+func (p *PostgresProductRepository) AssiociateImagesToProduct(ctx context.Context, prodID int, urls []string) ([]string, []string) {
+	query := `
+		INSERT INTO tb_product_images (
+			product_id,
+			image_url,
+			base_url
+		) VALUES ($1, $2, $3);
+	`
+
+	validImages := make([]string, 0)
+	errors := make([]string, 0)
+
+	if len(urls) <= 0 {
+		errors = append(errors, "image urls not found")
+		return validImages, errors
+	}
+
+	for _, url := range urls {
+		baseURL, err := pkg.GetBaseURL(url)
+
+		if err != nil {
+			continue
+		}
+
+		_, err = p.conn.Exec(ctx, query,
+			&prodID,
+			&url,
+			&baseURL,
+		)
+
+		if err != nil {
+			fmt.Println("error associating image to product")
+			errors = append(errors, err.Error())
+			continue
+		}
+
+		validImages = append(validImages, url)
+	}
+
+	return validImages, errors
+}
+
+func (p *PostgresProductRepository) GetImagesByProduct(ctx context.Context, prodID int) ([]models.ProductImage, error) {
+	query := `
+		SELECT id,
+			   product_id,
+			   image_url,
+			   status,
+			   created_at,
+			   updated_at
+		FROM tb_product_images
+		WHERE product_id = $1 and status = 1;
+	`
+
+	rows, err := p.conn.Query(ctx, query, prodID)
+
+	if err != nil {
+		return []models.ProductImage{}, err
+	}
+
+	defer rows.Close()
+
+	images := make([]models.ProductImage, 0)
+
+	for rows.Next() {
+		var prodImage models.ProductImage
+
+		err = rows.Scan(
+			&prodImage.ID,
+			&prodImage.ProductID,
+			&prodImage.ImageURL,
+			&prodImage.Status,
+			&prodImage.CreatedAt,
+			&prodImage.UpdatedAt,
+		)
+
+		if err != nil {
+			return []models.ProductImage{}, err
+		}
+
+		images = append(images, prodImage)
+	}
+
+	return images, nil
+}
+
+func (p *PostgresProductRepository) DeleteImagesByProduct(ctx context.Context, prodID int) error {
+	query := `
+		UPDATE tb_products
+		SET status = $1
+			updated_at = now()
+		WHERE id = $2 and status = 1;
+	`
+
+	statusDeletedCode := 0
+
+	commandTag, err := p.conn.Exec(ctx, query,
+		statusDeletedCode,
+		prodID,
+	)
+
+	rowsAffected := commandTag.RowsAffected()
+
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected <= 0 {
+		return errors.New("images were not deleted")
 	}
 
 	return nil

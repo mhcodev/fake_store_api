@@ -57,7 +57,7 @@ func ExtractClaims(tokenStr string) (jwt.MapClaims, error) {
 	token, err := ValidateToken(tokenStr)
 
 	if err != nil {
-		return nil, fmt.Errorf("error parsing token: %v", err)
+		return nil, err
 	}
 
 	// If the token is valid, extract claims

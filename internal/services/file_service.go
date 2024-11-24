@@ -14,6 +14,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/mhcodev/fake_store_api/internal/models"
 	"github.com/mhcodev/fake_store_api/internal/repository/repositories"
+	"github.com/mhcodev/fake_store_api/pkg"
 )
 
 const (
@@ -48,13 +49,20 @@ type ProcessFilesInput struct {
 }
 
 func (fs *FileService) SaveFileToDB(ctx context.Context, file *models.File) error {
+	baseURL, err := pkg.GetBaseURL(file.Url)
+	file.BaseURL = baseURL
+
+	if err != nil {
+		return nil
+	}
+
 	return fs.fileRepository.SaveFileToDB(ctx, file)
 }
 
 func (fs *FileService) SaveFileToDisk(ctx context.Context, file *multipart.FileHeader, baseURL string) (models.File, error) {
 	// Generate unique file name
 	ext := filepath.Ext(file.Filename)
-	uniqueName := fmt.Sprintf("%d%s", time.Now().UnixNano(), ext)
+	uniqueName := fmt.Sprintf("%s%s", pkg.GenerateRandomString(6), ext)
 	filePath := filepath.Join(UploadDir, uniqueName)
 
 	// Create a new context with a timeout for the file-saving process

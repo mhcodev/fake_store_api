@@ -52,6 +52,16 @@ type Product struct {
 	UpdatedAt   time.Time `json:"updatedAt"`
 }
 
+type ProductImage struct {
+	ID        int       `json:"id"`
+	ProductID int       `json:"productID"`
+	ImageURL  string    `json:"imageURL"`
+	Status    int8      `json:"status"`
+	BaseURL   string    `json:"baseURL"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
 type Order struct {
 	ID              int       `json:"id"`
 	UserID          int       `json:"userID"`
@@ -87,6 +97,7 @@ type File struct {
 	OriginalName string    `json:"originalName"`
 	FileName     string    `json:"filename"`
 	Type         string    `json:"type"`
+	BaseURL      string    `json:"baseURL"`
 	Url          string    `json:"url"`
 	Status       int8      `json:"status"`
 	CreatedAt    time.Time `json:"createdAt"`

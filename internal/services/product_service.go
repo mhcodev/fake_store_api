@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"sync"
 
 	"github.com/mhcodev/fake_store_api/internal/models"
 	"github.com/mhcodev/fake_store_api/internal/repository/repositories"
@@ -21,22 +22,65 @@ func NewProductService(productRepository *repositories.ProductRepository) *Produ
 }
 
 func (ps *ProductService) GetProductsByParams(ctx context.Context, params models.QueryParams) ([]models.Product, error) {
-	return ps.productRepository.GetProductsByParams(ctx, params)
+	products, err := ps.productRepository.GetProductsByParams(ctx, params)
+
+	if err != nil {
+		return []models.Product{}, err
+	}
+
+	var wg sync.WaitGroup
+
+	for idx, product := range products {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+
+			images, _ := ps.productRepository.GetImagesByProduct(ctx, product.ID)
+			urls := make([]string, 0)
+
+			for _, image := range images {
+				urls = append(urls, image.ImageURL)
+			}
+
+			product.Images = urls
+			products[idx] = product
+		}()
+	}
+
+	wg.Wait()
+
+	return products, nil
 }
 
 func (ps *ProductService) GetProductByID(ctx context.Context, ID int) (models.Product, error) {
-	return ps.productRepository.GetProductByID(ctx, ID)
+
+	product, err := ps.productRepository.GetProductByID(ctx, ID)
+
+	if err != nil {
+		return models.Product{}, err
+	}
+
+	images, _ := ps.productRepository.GetImagesByProduct(ctx, ID)
+
+	urls := make([]string, 0)
+
+	for _, image := range images {
+		urls = append(urls, image.ImageURL)
+	}
+
+	return product, nil
 }
 
 type ProductCreateInput struct {
-	CategoryID  *int     `json:"categoryID"`
-	Sku         *string  `json:"sku"`
-	Name        *string  `json:"name"`
-	Stock       *int     `json:"stock"`
-	Description *string  `json:"description"`
-	Price       *float32 `json:"price"`
-	Discount    *float32 `json:"discount"`
-	Status      *int8    `json:"status"`
+	CategoryID  *int      `json:"categoryID"`
+	Sku         *string   `json:"sku"`
+	Name        *string   `json:"name"`
+	Stock       *int      `json:"stock"`
+	Description *string   `json:"description"`
+	Price       *float32  `json:"price"`
+	Images      *[]string `json:"images"`
+	Discount    *float32  `json:"discount"`
+	Status      *int8     `json:"status"`
 }
 
 func (ps *ProductService) CreateProduct(ctx context.Context, input ProductCreateInput) (*models.Product, error) {
@@ -68,6 +112,11 @@ func (ps *ProductService) CreateProduct(ctx context.Context, input ProductCreate
 
 	if err != nil {
 		return &models.Product{}, err
+	}
+
+	if input.Images != nil {
+		validImages, _ := ps.productRepository.AssiociateImagesToProduct(ctx, productUpdated.ID, *input.Images)
+		productUpdated.Images = validImages
 	}
 
 	return &productUpdated, nil
@@ -140,7 +189,13 @@ func (ps *ProductService) DeleteProduct(ctx context.Context, ID int) error {
 	err = ps.productRepository.DeleteProduct(ctx, ID)
 
 	if err != nil {
-		return errors.New("product no updated")
+		return errors.New("product was no deleted")
+	}
+
+	err = ps.productRepository.DeleteImagesByProduct(ctx, ID)
+
+	if err != nil {
+		return errors.New("images were no deleted")
 	}
 
 	return nil

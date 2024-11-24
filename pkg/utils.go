@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"net/http"
+	"net/url"
 	"regexp"
 	"strings"
 )
@@ -57,4 +58,18 @@ func IsImageURL(url string) (bool, error) {
 
 	// Check if the Content-Type starts with "image/"
 	return strings.HasPrefix(contentType, "image/"), nil
+}
+
+// GetBaseURL return the Base URL from a link as a parameter
+func GetBaseURL(link string) (string, error) {
+	// Parse the input URL
+	parsedURL, err := url.Parse(link)
+	if err != nil {
+		return "", fmt.Errorf("invalid URL: %w", err)
+	}
+
+	// Extract the base URL (scheme + host + optional port)
+	baseURL := fmt.Sprintf("%s://%s", parsedURL.Scheme, parsedURL.Host)
+
+	return baseURL, nil
 }

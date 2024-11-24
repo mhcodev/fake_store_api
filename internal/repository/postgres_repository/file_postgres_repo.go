@@ -22,9 +22,8 @@ func (p *PostgresFileRepository) SaveFileToDB(ctx context.Context, file *models.
 			filename,
 			type,
 			url,
-			created_at,
-			updated_at
-		) VALUES ($1, $2, $3, $4, now(), now())
+			base_url
+		) VALUES ($1, $2, $3, $4, $5)
 		RETURNING id;
 	`
 
@@ -35,6 +34,7 @@ func (p *PostgresFileRepository) SaveFileToDB(ctx context.Context, file *models.
 		&file.FileName,
 		&file.Type,
 		&file.Url,
+		&file.BaseURL,
 	).Scan(&fileID)
 
 	if err != nil {
