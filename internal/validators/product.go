@@ -49,7 +49,7 @@ func ValidateProductCreateInput(input services.ProductCreateInput) ValidationErr
 	}
 
 	if input.Discount != nil && (*input.Discount < 0 || *input.Discount > 1) {
-		validationErrors.AddError("discount", "name is not valid")
+		validationErrors.AddError("discount", "discount is a decimal between 0 and 1")
 	}
 
 	if input.Status != nil && (*input.Status < 0 || *input.Status > 100) {
@@ -115,7 +115,7 @@ func ValidateProductUpdateInput(input services.ProductUpdateInput) ValidationErr
 	}
 
 	if input.Discount != nil && (*input.Discount < 0 || *input.Discount > 1) {
-		validationErrors.AddError("discount", "name is not valid")
+		validationErrors.AddError("discount", "discount is a decimal between 0 and 1")
 	}
 
 	if input.Status != nil && (*input.Status < 0 || *input.Status > 100) {
