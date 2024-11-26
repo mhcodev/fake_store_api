@@ -1,5 +1,80 @@
 # FAKE STORE API
 
+## Auth Endpoints
+### GET /api/v1/auth/data
+- **Description**: Get data from token
+- **Header Parameters**:
+  - `Authorization` (string, required): Bearer token generated when user logged in
+- **Response**:
+   - **Status Code**: 200 OK
+   - **Body**:
+     ```json
+      {
+          "code": 200,
+          "data": {
+              "exp": 1732444079,
+              "userID": 115,
+              "userTypeID": 3
+          },
+          "success": true
+      }
+     ```
+### POST /api/v1/auth/login
+- **Description**: Login using email & password
+- **JSON Body Parameters**:
+  - `email` (string, required): Email of the user
+  - `password` (string, required): Password of the user
+  - Example
+    ```json
+    {
+        "email": "miimxquxxx@gmail.com",
+        "password": "qwerty123"
+    }
+    ```
+- **Response**:
+   - **Status Code**: 200 OK
+   - **Body**:
+     ```json
+      {
+          "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzI0NDM5MDAsInVzZXJfaWQiOjExNX0.TJv8xgrX0nnpOxrUBk5Jqk206C8MtQfYyoorUyLYQU0",
+          "code": 200,
+          "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzMwNDc4MDAsInVzZXJfaWQiOjExNX0.Yyxmj1P4QO5Yfb2vItvQaoC6qWiOQRR6P3CROh9no2A",
+          "success": true,
+          "user": {
+              "id": 115,
+              "userTypeID": 3,
+              "name": "Jill",
+              "email": "Jill_Rogahn94@gmail.com",
+              "password": "df85418c5fef51124e9f255b723d9ace2761ba44d00542a815eafb106bfd6092",
+              "avatar": "http://[BASE_URL]/uploads/PROFILE2.png",
+              "phone": "987123987",
+              "status": 1,
+              "createdAt": "2024-10-09T01:58:35Z",
+              "updatedAt": "2024-10-09T01:58:35Z"
+          }
+      }
+     ```
+### POST /api/v1/auth/refresh
+- **Description**: Generate a new access token for user
+- **JSON Body Parameters**:
+  - `refreshToken` (string, required): Refresh token generated when user logged in
+  - Example
+    ```json
+    {
+      "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzA2MTg3NzksInJlZnJlc2giOnRydWUsInVzZXJfaWQiOjExNX0.E1QsBT9yU-oJcOvJMFVIdYwOrUOTnRicKGsY643rqFg"
+    }
+    ```
+- **Response**:
+   - **Status Code**: 200 OK
+   - **Body**:
+     ```json
+      {
+          "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzI0NDQ1MTYsInVzZXJJRCI6MTE1LCJ1c2VyVHlwZUlEIjozfQ.g4lXy_M0JJ5QMOeCJBgrkDS_muhWmy6cnzGq6dR6IKM",
+          "code": 200,
+          "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzMwNDg0MTYsInVzZXJJRCI6MTE1LCJ1c2VyVHlwZUlEIjozfQ.K7n9ZoxajuIUsIl3Ifwjh3L9q6rk2u_9oZrG7lkcgA4",
+          "success": true
+      }
+     ```
 ## User Endpoints
 ### GET /api/v1/users
 - **Description**: Fetch user by Params
@@ -17,15 +92,16 @@
       {
         "code": 200,
         "success": true,
+        "count": 10,
         "users": [
             {
-                "id": 3,
+                "id": 1,
                 "userTypeID": 2,
-                "name": "Shannon",
-                "email": "Shannon_Hegmann@gmail.com",
+                "name": "Jill",
+                "email": "Jill_Rogahn94@gmail.com",
                 "password": "12243a1d90981d89c50d76f93d344a2e55a8f65bd27bdc53d8743927fe6537c8",
-                "avatar": "https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/724.jpg",
-                "phone": "+1 (732) 597-8261",
+                "avatar": "http://[BASE_URL]/uploads/PROFILE2.png",
+                "phone": "+1 (993) 554-2275",
                 "status": 1,
                 "createdAt": "2024-09-23T08:19:49Z",
                 "updatedAt": "2024-09-23T08:19:49Z"
@@ -47,10 +123,10 @@
           "user": {
               "id": 1,
               "userTypeID": 1,
-              "name": "Sadie",
-              "email": "Sadie.West@yahoo.com",
-              "password": "7669ac4d663d618438006c1d51750d1386722c65bbe45335de8dbdbedcb97a61",
-              "avatar": "https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/742.jpg",
+              "name": "Jill",
+              "email": "Jill_Rogahn94@gmail.com",
+              "password": "df85418c5fef51124e9f255b723d9ace2761ba44d00542a815eafb106bfd6092",
+              "avatar": "http://[BASE_URL]/uploads/PROFILE2.png",
               "phone": "+1 (641) 196-0431",
               "status": 1,
               "createdAt": "2024-09-23T08:19:49Z",
@@ -71,13 +147,12 @@
   - Example
     ```json
     {
-        "userTypeID": 3,
-        "name": "Milena",
-        "email": "mila.26@example.com",
+        "userTypeID": 1,
+        "name": "Sadie",
+        "email": "Sadie.West@yahoo.com",
         "password": "PassWordSecret",
-        "avatar": "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png",
-        "phone": "987123987",
-        "status": 1
+        "avatar": "http://[BASE_URL]/uploads/PROFILE1.png",
+        "phone": "+1 (641) 196-0431"
     }
     ```
 - **Response**:
@@ -88,12 +163,12 @@
           "code": 200,
           "success": true,
           "user": {
-              "id": 122,
-              "userTypeID": 3,
-              "name": "Milena",
-              "email": "mila.26@example.com",
-              "password": "$2a$10$tWFU3Z363uycuk3ekfMbD.IqqRiLNBH3BoBvCoR2O.XwtQDwzUlHy",
-              "avatar": "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png",
+              "id": 2,
+              "userTypeID": 1,
+              "name": "Sadie",
+              "email": "Sadie.West@yahoo.com",
+              "password": "7669ac4d663d618438006c1d51750d1386722c65bbe45335de8dbdbedcb97a61",
+              "avatar": "http://[BASE_URL]/uploads/PROFILE1.png",
               "phone": "987123987",
               "status": 1,
               "createdAt": "0001-01-01T00:00:00Z",
@@ -109,7 +184,7 @@
   - Example
     ```json
     {
-        "email": "sadie.west@yahoo.com"
+        "email": "Shannon_Hegmann@gmail.com"
     }
     ```
 - **Response**:
@@ -129,11 +204,11 @@
 - **URL Parameters**:
   - `id` (integer, required): ID of the user
 - **JSON Body Parameters**:
-  - `userTypeID` (integer, required): Type or Rol of the user
-  - `name` (string, required): Name of the user
-  - `email` (string, required): Email of the user
-  - `password` (string, required): ID of the user
-  - `avatar` (string, required): Profile photo of the user
+  - `userTypeID` (integer, optional): Type or Rol of the user
+  - `name` (string, optional): Name of the user
+  - `email` (string, optional): Email of the user
+  - `password` (string, optional): Password of the user
+  - `avatar` (string, optional): Photo of the user
   - `phone` (string, optional): Phone of the user
   - `status` (integer, optional): Status of the user
   - Example
@@ -143,7 +218,7 @@
         "name": "Milena Z.",
         "email": "mila.26@example.com",
         "password": "PassWordSecret",
-        "avatar": "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png",
+        "avatar": "http://[BASE_URL]/uploads/PROFILE2.png",
         "phone": "987123987",
         "status": 1
     }
@@ -156,12 +231,12 @@
           "code": 200,
           "success": true,
           "user": {
-              "id": 122,
+              "id": 2,
               "userTypeID": 3,
               "name": "Milena Z.",
               "email": "mila.26@example.com",
               "password": "$2a$10$sNaXildzZZX2aPG.uysyf.XNZ15ygo9PPQB0.dLnRmgK6OLngUW.e",
-              "avatar": "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png",
+              "avatar": "http://[BASE_URL]/uploads/PROFILE2.png",
               "phone": "987123987",
               "status": 1,
               "createdAt": "2024-11-09T19:20:30Z",
@@ -198,18 +273,31 @@
           "categories": [
               {
                   "id": 1,
-                  "name": "Electronics",
-                  "imageURL": "https://caring-sunlight.info",
-                  "status": 0
+                  "name": "Clothes",
+                  "imageURL": "http://[BASE_URL]/uploads/category_1.jpeg",
+                  "status": 1
               },
               {
                   "id": 2,
-                  "name": "Forniture",
-                  "imageURL": "https://self-reliant-undertaker.org/",
-                  "status": 0
+                  "name": "Games",
+                  "imageURL": "http://[BASE_URL]/uploads/category_2.webp",
+                  "status": 1
+              },
+              {
+                  "id": 3,
+                  "name": "PC Components",
+                  "imageURL": "http://[BASE_URL]/uploads/category_3.png",
+                  "status": 1
+              },
+              {
+                  "id": 4,
+                  "name": "Smartphones",
+                  "imageURL": "http://[BASE_URL]/uploads/category_4.webp",
+                  "status": 1
               }
           ],
           "code": 200,
+          "count": 4,
           "success": true
       }
      ```
@@ -223,9 +311,9 @@
      ```json
       {
           "category": {
-              "id": 2,
-              "name": "Forniture",
-              "imageURL": "https://self-reliant-undertaker.org/",
+              "id": 1,
+              "name": "Clothes",
+              "imageURL": "http://[BASE_URL]/uploads/category_1.jpeg",
               "status": 1
           },
           "code": 200,
@@ -242,7 +330,7 @@
     {
         "category": {
             "name": "Tecnology",
-            "imageURL": "https://totebagfactory.com/cdn/shop/products/Cotton-Canvas-Tote-Babgs-Natural.jpg?v=1552815941&width=1214"
+            "imageURL": "http://[BASE_URL]/uploads/category_5_.jpeg",
         }
     }
     ```
@@ -252,9 +340,9 @@
      ```json
       {
           "category": {
-              "id": 39,
+              "id": 5,
               "name": "Tecnology",
-              "imageURL": "https://totebagfactory.com/cdn/shop/products/Cotton-Canvas-Tote-Babgs-Natural.jpg?v=1552815941&width=1214",
+              "imageURL": "http://[BASE_URL]/uploads/category_5_.jpeg",
               "status": 1
           },
           "code": 200,
@@ -264,7 +352,7 @@
 ### PUT /api/v1/category/:id
 - **Description**: Update a category by ID
 - **URL Parameters**:
-  - `id` (string, required): id of the category
+  - `id` (integer, required): id of the category
 - **JSON Body Parameters**:
   - `name` (string, required): Name of the category
   - `imageURL` (string, required): Image of the category
@@ -273,7 +361,7 @@
     {
         "category": {
             "name": "Tecnology v2",
-            "imageURL": "https://totebagfactory.com/cdn/shop/products/Cotton-Canvas-Tote-Babgs-Natural.jpg?v=1552815941&width=1214"
+            "imageURL": "http://[BASE_URL]/uploads/category_5_.jpeg",
         }
     }
     ```
@@ -283,9 +371,9 @@
      ```json
       {
           "category": {
-              "id": 39,
+              "id": 5,
               "name": "Tecnology v2",
-              "imageURL": "https://totebagfactory.com/cdn/shop/products/Cotton-Canvas-Tote-Babgs-Natural.jpg?v=1552815941&width=1214",
+              "imageURL": "http://[BASE_URL]/uploads/category_5_.jpeg",
               "status": 1
           },
           "code": 200,
@@ -303,6 +391,243 @@
       {
           "code": 200,
           "msg": "category deleted",
+          "success": true
+      }
+     ```
+## Product Endpoints
+### GET /api/v1/product/:id
+- **Description**: Returns a product by ID
+- **URL Parameters**:
+  - `id` (integer, required): id of the product
+- **Response**:
+   - **Status Code**: 200 OK
+   - **Body**:
+     ```json
+      {
+          "code": 200,
+          "product": {
+              "id": 1,
+              "categoryID": 1,
+              "sku": "CLOTH12345",
+              "name": "Casual T-Shirt",
+              "slug": "casual-t-shirt",
+              "stock": 25,
+              "description": "A comfortable cotton t-shirt perfect for everyday wear.",
+              "price": 19.99,
+              "discount": 0.1,
+              "images": [
+                  "http://[BASE_URL]/uploads/clothes_1.jpeg"
+              ],
+              "category": {
+                  "id": 0,
+                  "name": "",
+                  "imageURL": "",
+                  "status": 0
+              },
+              "status": 1,
+              "createdAt": "2024-11-24T23:40:44Z",
+              "updatedAt": "2024-11-24T23:40:44Z"
+          },
+          "success": true
+      }
+     ```
+### GET /api/v1/product
+- **Description**: Returns a list of products
+- **URL Parameters**:
+  - `id` (integer, required): id of the product
+- **Response**:
+   - **Status Code**: 200 OK
+   - **Body**:
+     ```json
+      {
+          "code": 200,
+          "count": 21,
+          "products": [
+              {
+                  "id": 1,
+                  "categoryID": 1,
+                  "sku": "CLOTH12345",
+                  "name": "Casual T-Shirt",
+                  "slug": "casual-t-shirt",
+                  "stock": 25,
+                  "description": "A comfortable cotton t-shirt perfect for everyday wear.",
+                  "price": 19.99,
+                  "discount": 0.1,
+                  "images": [
+                      "http://[BASE_URL]/uploads/clothes_1.jpeg"
+                  ],
+                  "category": {
+                      "id": 0,
+                      "name": "",
+                      "imageURL": "",
+                      "status": 0
+                  },
+                  "status": 1,
+                  "createdAt": "2024-11-24T23:40:44Z",
+                  "updatedAt": "2024-11-24T23:40:44Z"
+              }
+          ],
+          "success": true
+      }
+     ```
+### POST /api/v1/product
+- **Description**: Create a product
+- **JSON Body Parameters**:
+  - `categoryID` (string, required): ID of category
+  - `name` (string, required): Name of the product
+  - `description` (string, required): Description of the product
+  - `price` (double, required): Price of the product
+  - `sku` (string, optional): SKU of the product (generated if not provided)
+  - `stock` (integer, optional): Stock of the product (default 0)
+  - `discount` (double, optional): Discount of the product (default 0)
+  - `images` (array[string], optional): Images of the product (default empty array)
+  - Example
+    ```json
+    {
+        "categoryID": 1,
+        "sku": "03973ASDQWE",
+        "name": "Generic T-Shirt",
+        "stock": 111,
+        "description": "Gray/Blue/Red T-Shirt, great if you want to do a sport",
+        "price": 100.00,
+        "discount": 0.00,
+        "images": [
+        ]
+    }
+    ```
+- **Response**:
+   - **Status Code**: 200 OK
+   - **Body**:
+     ```json
+      {
+          "code": 200,
+          "product": {
+              "id": 21,
+              "categoryID": 1,
+              "sku": "03973ASDQWE",
+              "name": "Generic T-Shirt",
+              "slug": "generic-granite-chair",
+              "stock": 111,
+              "description": "Gray/Blue/Red T-Shirt, great if you want to do a sport",
+              "price": 100.00,
+              "discount": 0.00,
+              "images": [
+                  "http://[BASE_URL]/uploads/03973ASDQWE.png",
+              ],
+              "category": {
+                  "id": 1,
+                  "name": "Clothes",
+                  "imageURL": "http://[BASE_URL]/uploads/category_1.jpeg",
+                  "status": 1
+              },
+              "status": 1,
+              "createdAt": "2024-11-24T04:11:24Z",
+              "updatedAt": "2024-11-24T04:11:24Z"
+          },
+          "success": true
+      }
+     ```
+### PUT /api/v1/product/:id
+- **Description**: Update a product by ID
+- **URL Parameters**:
+  - `id` (string, required): id of the product
+- **JSON Body Parameters**:
+  - `categoryID` (string, optional): ID of category
+  - `name` (string, optional): Name of the product
+  - `description` (string, optional): Description of the product
+  - `price` (double, optional): Price of the product
+  - `sku` (string, optional): SKU of the product (generated if not provided)
+  - `stock` (integer, optional): Stock of the product (default 0)
+  - `discount` (double, optional): Discount of the product (default 0)
+  - `images` (array[string], optional): Images of the product (default empty array)
+ - Example
+    ```json
+    {
+        "categoryID": 1,
+        "sku": "CLOTH12345",
+        "name": "Casual Black T-Shirt",
+        "stock": 20,
+        "description": "A comfortable cotton t-shirt perfect for everyday wear.",
+        "price": 19.99,
+        "discount": 0.1,
+        "images": [
+            "http://[BASE_URL]/uploads/clothes_1.jpeg"
+        ]
+    }
+    ```
+- **Response**:
+   - **Status Code**: 200 OK
+   - **Body**:
+     ```json
+      {
+          "code": 200,
+          "product": {
+              "id": 1,
+              "categoryID": 1,
+              "sku": "CLOTH12345",
+              "name": "Casual Black T-Shirt",
+              "slug": "casual-black-t-shirt",
+              "stock": 20,
+              "description": "A comfortable cotton t-shirt perfect for everyday wear.",
+              "price": 19.99,
+              "discount": 0.1,
+              "images": [
+                  "http://[BASE_URL]/uploads/clothes_1.jpeg"
+              ],
+              "category": {
+                  "id": 0,
+                  "name": "",
+                  "imageURL": "",
+                  "status": 0
+              },
+              "status": 1,
+              "createdAt": "2024-11-24T23:40:44Z",
+              "updatedAt": "2024-11-26T00:53:05Z"
+          },
+          "success": true
+      }
+     ```
+### DELETE /api/v1/product/:id
+- **Description**: Delete a product by ID
+- **URL Parameters**:
+  - `id` (string, required): id of the product
+- **Response**:
+   - **Status Code**: 200 OK
+   - **Body**:
+     ```json
+      {
+          "code": 200,
+          "msg": "product 1 deleted",
+          "success": true
+      }
+     ```
+
+## File Endpoints
+### POST /api/v1/file/upload
+- **Description**: Create a product
+- **Form Data Parameters**:
+  - `images` (array[string], required): Images of the product
+- **Response**:
+   - **Status Code**: 200 OK
+   - **Body**:
+     ```json
+      {
+          "code": 200,
+          "errors": [],
+          "files": [
+              {
+                  "id": 38,
+                  "originalName": "user_4.png",
+                  "filename": "HIOCJ0.png",
+                  "type": ".png",
+                  "baseURL": "http://[BASE_URL]",
+                  "url": "http://[BASE_URL]/uploads/HIOCJ0.png",
+                  "status": 0,
+                  "createdAt": "0001-01-01T00:00:00Z",
+                  "updatedAt": "0001-01-01T00:00:00Z"
+              }
+          ],
+          "msg": "Files uploaded successfully",
           "success": true
       }
      ```
