@@ -66,6 +66,9 @@ func (ps *ProductService) GetProductsByParams(ctx context.Context, params models
 				urls = append(urls, image.ImageURL)
 			}
 
+			category, _ := ps.categoryRepository.GetCategoryByID(ctx, product.CategoryID)
+
+			product.Category = category
 			product.Images = urls
 			products[idx] = product
 		}()
@@ -93,6 +96,14 @@ func (ps *ProductService) GetProductByID(ctx context.Context, ID int) (models.Pr
 	}
 
 	product.Images = urls
+
+	category, err := ps.categoryRepository.GetCategoryByID(ctx, product.CategoryID)
+
+	if err != nil {
+		return models.Product{}, err
+	}
+
+	product.Category = category
 
 	return product, nil
 }
@@ -241,6 +252,14 @@ func (ps *ProductService) UpdateProduct(ctx context.Context, ID int, input Produ
 	if err != nil {
 		return &models.Product{}, errors.New("product no updated")
 	}
+
+	category, err := ps.categoryRepository.GetCategoryByID(ctx, product.CategoryID)
+
+	if err != nil {
+		return &models.Product{}, err
+	}
+
+	product.Category = category
 
 	return &product, nil
 }
