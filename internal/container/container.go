@@ -20,7 +20,7 @@ func NewContainerService(DBRepo *repository.DBRepository) *ContainerService {
 	authService := services.NewAuthService(&DBRepo.AuthRepository)
 	userService := services.NewUserService(&DBRepo.UserRepository)
 	categoryService := services.NewCategoryService(&DBRepo.CategoryRepository)
-	productService := services.NewProductService(&DBRepo.ProductRepository)
+	productService := services.NewProductService(&DBRepo.ProductRepository, &DBRepo.CategoryRepository)
 	fileService := services.NewFileService(&DBRepo.FileRepository)
 
 	// Return the container with all initialized dependencies

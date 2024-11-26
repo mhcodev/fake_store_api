@@ -12,12 +12,17 @@ import (
 )
 
 type ProductService struct {
-	productRepository repositories.ProductRepository
+	productRepository  repositories.ProductRepository
+	categoryRepository repositories.CategoryRepository
 }
 
-func NewProductService(productRepository *repositories.ProductRepository) *ProductService {
+func NewProductService(
+	productRepository *repositories.ProductRepository,
+	categoryRepository *repositories.CategoryRepository,
+) *ProductService {
 	return &ProductService{
-		productRepository: *productRepository,
+		productRepository:  *productRepository,
+		categoryRepository: *categoryRepository,
 	}
 }
 
@@ -147,6 +152,14 @@ func (ps *ProductService) CreateProduct(ctx context.Context, input ProductCreate
 	if err != nil {
 		return &models.Product{}, err
 	}
+
+	category, err := ps.categoryRepository.GetCategoryByID(ctx, newProduct.CategoryID)
+
+	if err != nil {
+		return &models.Product{}, err
+	}
+
+	productUpdated.Category = category
 
 	if input.Images != nil {
 		validImages, _ := ps.productRepository.AssiociateImagesToProduct(ctx, productUpdated.ID, *input.Images)
