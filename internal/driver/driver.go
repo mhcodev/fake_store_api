@@ -37,10 +37,13 @@ func ConnectToPostgresDB() *pgxpool.Pool {
 
 	var dbConnected string
 	err = dbpool.QueryRow(context.Background(), "select 'Database connected!'").Scan(&dbConnected)
+
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
 		os.Exit(1)
 	}
+
+	dbpool.Exec(context.Background(), "DEALLOCATE ALL")
 
 	fmt.Println(dbConnected)
 	return dbpool
