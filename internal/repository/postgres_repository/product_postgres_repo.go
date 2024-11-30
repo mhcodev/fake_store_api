@@ -64,21 +64,27 @@ func (p *PostgresProductRepository) SkuIsAvailable(ctx context.Context, sku stri
 func (p *PostgresProductRepository) GetProductsByParams(ctx context.Context, params models.QueryParams) ([]models.Product, error) {
 	query := `
 		SELECT
-			id,
-			category_id,
-			sku,
-			name,
-			slug,
-			stock,
-			description,
-			price,
-			discount,
-			status,
-			created_at,
-			updated_at
-		FROM tb_products
+			p.id,
+			p.category_id,
+			p.sku,
+			p.name,
+			p.slug,
+			p.stock,
+			p.description,
+			p.price,
+			p.discount,
+			p.status,
+			p.created_at,
+			p.updated_at,
+			c.id,
+			c.name,
+			c.image_url,
+			c.status
+		FROM tb_products as p
+		INNER JOIN tb_categories c
+		ON c.id = p.category_id
 		LIMIT $1
-		OFFSET $2
+		OFFSET $2;
 	`
 
 	rows, err := p.conn.Query(ctx, query,
@@ -86,7 +92,7 @@ func (p *PostgresProductRepository) GetProductsByParams(ctx context.Context, par
 		&params.Offset,
 	)
 
-	var products []models.Product
+	products := make([]models.Product, 0)
 
 	if err != nil {
 		return products, err
@@ -96,7 +102,9 @@ func (p *PostgresProductRepository) GetProductsByParams(ctx context.Context, par
 
 	for rows.Next() {
 		var product models.Product
-		err := rows.Scan(
+		var category models.Category
+
+		err = rows.Scan(
 			&product.ID,
 			&product.CategoryID,
 			&product.Sku,
@@ -109,11 +117,18 @@ func (p *PostgresProductRepository) GetProductsByParams(ctx context.Context, par
 			&product.Status,
 			&product.CreatedAt,
 			&product.UpdatedAt,
+			&category.ID,
+			&category.Name,
+			&category.ImageURL,
+			&category.Status,
 		)
 
 		if err != nil {
 			return []models.Product{}, err
 		}
+
+		product.Category = category
+
 		products = append(products, product)
 	}
 
@@ -336,6 +351,50 @@ func (p *PostgresProductRepository) GetImagesByProduct(ctx context.Context, prod
 	`
 
 	rows, err := p.conn.Query(ctx, query, prodID)
+
+	if err != nil {
+		return []models.ProductImage{}, err
+	}
+
+	defer rows.Close()
+
+	images := make([]models.ProductImage, 0)
+
+	for rows.Next() {
+		var prodImage models.ProductImage
+
+		err = rows.Scan(
+			&prodImage.ID,
+			&prodImage.ProductID,
+			&prodImage.ImageURL,
+			&prodImage.Status,
+			&prodImage.CreatedAt,
+			&prodImage.UpdatedAt,
+		)
+
+		if err != nil {
+			return []models.ProductImage{}, err
+		}
+
+		images = append(images, prodImage)
+	}
+
+	return images, nil
+}
+
+func (p *PostgresProductRepository) GetImagesByProducListID(ctx context.Context, IDs []int) ([]models.ProductImage, error) {
+	query := `
+		SELECT id,
+			   product_id,
+			   image_url,
+			   status,
+			   created_at,
+			   updated_at
+		FROM tb_product_images
+		WHERE product_id = ANY ($1);
+	`
+
+	rows, err := p.conn.Query(ctx, query, IDs)
 
 	if err != nil {
 		return []models.ProductImage{}, err

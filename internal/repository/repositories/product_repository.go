@@ -16,5 +16,6 @@ type ProductRepository interface {
 	DeleteProduct(ctx context.Context, ID int) error
 	AssiociateImagesToProduct(ctx context.Context, prodID int, urls []string) ([]string, []string)
 	GetImagesByProduct(ctx context.Context, prodID int) ([]models.ProductImage, error)
+	GetImagesByProducListID(ctx context.Context, IDs []int) ([]models.ProductImage, error)
 	DeleteImagesByProduct(ctx context.Context, prodID int) error
 }

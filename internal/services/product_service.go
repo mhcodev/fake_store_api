@@ -46,32 +46,60 @@ func (ps *ProductService) GetProductsByParams(ctx context.Context, params models
 		params.Offset = 0
 	}
 
+	var products []models.Product
+	var images []models.ProductImage
+	var mu sync.Mutex
+	var wg sync.WaitGroup
+
 	products, err := ps.productRepository.GetProductsByParams(ctx, params)
 
 	if err != nil {
 		return []models.Product{}, err
 	}
 
-	var wg sync.WaitGroup
+	if len(products) == 0 {
+		return []models.Product{}, nil
+	}
 
-	for idx, product := range products {
+	var Ids []int
+
+	for _, p := range products {
+		Ids = append(Ids, p.ID)
+	}
+
+	images, err = ps.productRepository.GetImagesByProducListID(ctx, Ids)
+
+	if err != nil {
+		return products, err
+	}
+
+	if len(images) == 0 {
+		return products, nil
+	}
+
+	productImages := make(map[int][]string, 0)
+
+	for _, image := range images {
 		wg.Add(1)
+
 		go func() {
 			defer wg.Done()
-
-			images, _ := ps.productRepository.GetImagesByProduct(ctx, product.ID)
-			urls := make([]string, 0)
-
-			for _, image := range images {
-				urls = append(urls, image.ImageURL)
-			}
-
-			category, _ := ps.categoryRepository.GetCategoryByID(ctx, product.CategoryID)
-
-			product.Category = category
-			product.Images = urls
-			products[idx] = product
+			mu.Lock()
+			productImages[image.ProductID] = append(productImages[image.ProductID], image.ImageURL)
+			mu.Unlock()
 		}()
+	}
+
+	wg.Wait()
+
+	for idx, p := range products {
+		wg.Add(1)
+
+		go func(idx int, p models.Product) {
+			defer wg.Done()
+			p.Images = productImages[p.ID]
+			products[idx] = p
+		}(idx, p)
 	}
 
 	wg.Wait()

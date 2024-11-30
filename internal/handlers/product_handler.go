@@ -28,7 +28,7 @@ func (h *ProductHandler) GetProductsByParams(c *fiber.Ctx) error {
 	}
 
 	products, err := h.ProductService.GetProductsByParams(c.Context(), parmas)
-	var validationErrors validators.ValidationErrors
+	validationErrors := make(validators.ValidationErrors, 0)
 
 	if err != nil {
 		validationErrors.AddError("msg", "no products found")
