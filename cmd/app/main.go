@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 	"github.com/mhcodev/fake_store_api/internal/container"
 	"github.com/mhcodev/fake_store_api/internal/middleware"
@@ -27,13 +28,14 @@ func main() {
 	dbType := "postgres"
 
 	var dbRepo *repository.DBRepository
+	var conn *pgxpool.Pool
 
 	switch dbType {
 	case "postgres":
-		postgresRepo, conn := repository.InitPosgresRepositories()
-		dbRepo = postgresRepo
-		defer conn.Close()
+		dbRepo, conn = repository.InitPosgresRepositories()
 	}
+
+	defer conn.Close()
 
 	app := fiber.New(fiber.Config{
 		BodyLimit:    RequestMaxSize,

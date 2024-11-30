@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -29,11 +30,22 @@ func ConnectToPostgresDB() *pgxpool.Pool {
 		dbMode,
 	)
 
-	dbpool, err := pgxpool.New(context.Background(), dsn)
+	config, err := pgxpool.ParseConfig(dsn)
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Unable to parse connection string: %v\n", err)
+		os.Exit(1)
+	}
+
+	config.MaxConns = 30
+
+	dbpool, err := pgxpool.NewWithConfig(context.Background(), config)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
 		os.Exit(1)
 	}
+
+	config.ConnConfig.DefaultQueryExecMode = pgx.QueryExecModeCacheDescribe
 
 	var dbConnected string
 	_, err = dbpool.Exec(context.Background(), "DEALLOCATE ALL")
@@ -48,8 +60,6 @@ func ConnectToPostgresDB() *pgxpool.Pool {
 		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
 		os.Exit(1)
 	}
-
-	dbpool.Exec(context.Background(), "DEALLOCATE ALL")
 
 	fmt.Println(dbConnected)
 	return dbpool
