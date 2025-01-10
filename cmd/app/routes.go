@@ -2,12 +2,14 @@ package main
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/adaptor"
 	"github.com/mhcodev/fake_store_api/internal/container"
 	"github.com/mhcodev/fake_store_api/internal/middleware"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func setupRoutes(app *fiber.App, ch *container.ContainerHandler) {
-	api := app.Group("/api")
+	api := app.Group("/api", middleware.RecordRequestLatency, middleware.RecordRequestCount)
 
 	v1 := api.Group("/v1")
 
@@ -54,4 +56,8 @@ func setupRoutes(app *fiber.App, ch *container.ContainerHandler) {
 		)
 	})
 
+}
+
+func registerPrometheusRoute(app *fiber.App) {
+	app.Get("/metrics", adaptor.HTTPHandler(promhttp.Handler()))
 }

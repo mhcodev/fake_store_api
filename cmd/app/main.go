@@ -10,12 +10,37 @@ import (
 	"github.com/mhcodev/fake_store_api/internal/container"
 	"github.com/mhcodev/fake_store_api/internal/middleware"
 	"github.com/mhcodev/fake_store_api/internal/repository"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 const (
 	RequestMaxSize = 20 * 1024 * 1024
 	UploadDir      = "./uploads"
 )
+
+// Define metrics
+var (
+	requestCount = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "api_request_count",
+			Help: "Total number of requests",
+		},
+		[]string{"method", "endpoint"},
+	)
+	requestDuration = prometheus.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name:    "api_request_duration_seconds",
+			Help:    "Histogram of response time for API requests",
+			Buckets: prometheus.DefBuckets,
+		},
+		[]string{"method", "endpoint"},
+	)
+)
+
+func init() {
+	prometheus.MustRegister(requestCount)
+	prometheus.MustRegister(requestDuration)
+}
 
 func main() {
 
@@ -42,6 +67,8 @@ func main() {
 		ErrorHandler: middleware.ErrorHandler,
 	})
 
+	middleware.RegisterPrometheusMetrics()
+
 	app.Use(middleware.RequestSizeLimit(RequestMaxSize))
 
 	// Ensure the uploads directory exists
@@ -52,7 +79,8 @@ func main() {
 	ch := container.NewContainerHandler(containerService)
 
 	setupRoutes(app, ch)
+	registerPrometheusRoute(app)
 
 	// Start the server
-	log.Fatal(app.Listen(":3000"))
+	log.Fatal(app.Listen(":4000"))
 }
