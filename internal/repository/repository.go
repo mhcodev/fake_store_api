@@ -2,7 +2,6 @@ package repository
 
 import (
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/mhcodev/fake_store_api/internal/driver"
 	postgresrepository "github.com/mhcodev/fake_store_api/internal/repository/postgres_repository"
 	"github.com/mhcodev/fake_store_api/internal/repository/repositories"
 )
@@ -13,16 +12,16 @@ type DBRepository struct {
 	CategoryRepository repositories.CategoryRepository
 	ProductRepository  repositories.ProductRepository
 	FileRepository     repositories.FileRepository
+	LogRepository      repositories.LogRepository
 }
 
-func InitPosgresRepositories() (*DBRepository, *pgxpool.Pool) {
-	conn := driver.ConnectToPostgresDB()
-
+func InitPosgresRepositories(conn *pgxpool.Pool) *DBRepository {
 	return &DBRepository{
 		AuthRepository:     postgresrepository.NewPostgresAuthRepository(conn),
 		UserRepository:     postgresrepository.NewPostgresUserRepository(conn),
 		CategoryRepository: postgresrepository.NewPostgresCategoryRepository(conn),
 		ProductRepository:  postgresrepository.NewPostgresProductRepository(conn),
 		FileRepository:     postgresrepository.NewPostgresFileRepository(conn),
-	}, conn
+		LogRepository:      postgresrepository.NewPostgresLogRepository(conn),
+	}
 }

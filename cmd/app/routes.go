@@ -55,7 +55,6 @@ func setupRoutes(app *fiber.App, ch *container.ContainerHandler) {
 			ch.FileHandler.UploadLoad,
 		)
 	})
-
 }
 
 func registerPrometheusRoute(app *fiber.App) {

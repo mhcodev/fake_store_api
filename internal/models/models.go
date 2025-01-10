@@ -103,3 +103,18 @@ type File struct {
 	CreatedAt    time.Time `json:"createdAt"`
 	UpdatedAt    time.Time `json:"updatedAt"`
 }
+
+type ApiLog struct {
+	ID           int       `json:"id"`
+	Method       string    `json:"method"`
+	Version      string    `json:"version"`
+	Path         string    `json:"path"`
+	StatusCode   int       `json:"statusCode"`
+	ResponseTime int64     `json:"responseTime"`
+	UserID       int       `json:"userID"`
+	IPAdress     string    `json:"ipAdress"`
+	Country      string    `json:"country"`
+	Status       int8      `json:"status"`
+	CreatedAt    time.Time `json:"createdAt"`
+	UpdatedAt    time.Time `json:"updatedAt"`
+}

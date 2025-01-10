@@ -7,40 +7,17 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
+	"github.com/mhcodev/fake_store_api/internal/config"
 	"github.com/mhcodev/fake_store_api/internal/container"
+	"github.com/mhcodev/fake_store_api/internal/driver"
 	"github.com/mhcodev/fake_store_api/internal/middleware"
 	"github.com/mhcodev/fake_store_api/internal/repository"
-	"github.com/prometheus/client_golang/prometheus"
 )
 
 const (
 	RequestMaxSize = 20 * 1024 * 1024
 	UploadDir      = "./uploads"
 )
-
-// Define metrics
-var (
-	requestCount = prometheus.NewCounterVec(
-		prometheus.CounterOpts{
-			Name: "api_request_count",
-			Help: "Total number of requests",
-		},
-		[]string{"method", "endpoint"},
-	)
-	requestDuration = prometheus.NewHistogramVec(
-		prometheus.HistogramOpts{
-			Name:    "api_request_duration_seconds",
-			Help:    "Histogram of response time for API requests",
-			Buckets: prometheus.DefBuckets,
-		},
-		[]string{"method", "endpoint"},
-	)
-)
-
-func init() {
-	prometheus.MustRegister(requestCount)
-	prometheus.MustRegister(requestDuration)
-}
 
 func main() {
 
@@ -57,7 +34,8 @@ func main() {
 
 	switch dbType {
 	case "postgres":
-		dbRepo, conn = repository.InitPosgresRepositories()
+		conn := driver.ConnectToPostgresDB()
+		dbRepo = repository.InitPosgresRepositories(conn)
 	}
 
 	defer conn.Close()
@@ -77,6 +55,13 @@ func main() {
 
 	containerService := container.NewContainerService(dbRepo)
 	ch := container.NewContainerHandler(containerService)
+
+	middleware.LogService = containerService.LogService
+
+	app.Use(middleware.RecordApiLogs)
+
+	// Save connection variable in app configuration
+	config.NewAppConfiguration(conn)
 
 	setupRoutes(app, ch)
 	registerPrometheusRoute(app)

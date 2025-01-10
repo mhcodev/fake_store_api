@@ -13,6 +13,7 @@ type ContainerService struct {
 	CategoryService *services.CategoryService
 	ProductService  *services.ProductService
 	FileService     *services.FileService
+	LogService      *services.LogService
 }
 
 func NewContainerService(DBRepo *repository.DBRepository) *ContainerService {
@@ -22,6 +23,7 @@ func NewContainerService(DBRepo *repository.DBRepository) *ContainerService {
 	categoryService := services.NewCategoryService(&DBRepo.CategoryRepository)
 	productService := services.NewProductService(&DBRepo.ProductRepository, &DBRepo.CategoryRepository)
 	fileService := services.NewFileService(&DBRepo.FileRepository)
+	logService := services.NewLogService(&DBRepo.LogRepository)
 
 	// Return the container with all initialized dependencies
 	return &ContainerService{
@@ -30,6 +32,7 @@ func NewContainerService(DBRepo *repository.DBRepository) *ContainerService {
 		CategoryService: categoryService,
 		ProductService:  productService,
 		FileService:     fileService,
+		LogService:      logService,
 	}
 }
 
