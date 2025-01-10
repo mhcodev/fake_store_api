@@ -13,6 +13,10 @@ func RecordApiLogs(c *fiber.Ctx) error {
 	// Process the request
 	next := c.Next()
 
+	if strings.Contains(c.Path(), "/metric") {
+		return next
+	}
+
 	// Record the start time
 	startTime := time.Now()
 
