@@ -28,11 +28,22 @@ func getCountryFromIP(ip string) (string, error) {
 	return geoInfo.Country, nil
 }
 
-func getClientIP(c *fiber.Ctx) string {
-	ip := c.IP()
-	forwarded := c.Get("X-Forwarded-For")
-	if forwarded != "" {
-		ip = forwarded // Use the forwarded IP if available
+type IpInfo struct {
+	IP string `json:"ip"`
+}
+
+func getClientIP(c *fiber.Ctx) (string, error) {
+	url := fmt.Sprintf("https://api.ipify.org?format=json")
+	resp, err := http.Get(url)
+	if err != nil {
+		return "", err
 	}
-	return ip
+	defer resp.Body.Close()
+
+	var ipInfo IpInfo
+	if err := json.NewDecoder(resp.Body).Decode(&ipInfo); err != nil {
+		return "", err
+	}
+
+	return ipInfo.IP, nil
 }
