@@ -23,8 +23,8 @@ func RecordApiLogs(c *fiber.Ctx) error {
 	// Calculate the response time
 	duration := time.Since(startTime)
 
-	go func(duration time.Duration, c *fiber.Ctx) {
-		ip, err := getClientIP(c)
+	go func(duration time.Duration) {
+		ip, err := getClientIP()
 
 		if err != nil {
 			return
@@ -52,7 +52,7 @@ func RecordApiLogs(c *fiber.Ctx) error {
 		}
 
 		LogService.InsertApiLog(context.Background(), &l)
-	}(duration, c)
+	}(duration)
 
 	return next
 }

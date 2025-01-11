@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-
-	"github.com/gofiber/fiber/v2"
 )
 
 type GeoInfo struct {
@@ -32,8 +30,8 @@ type IpInfo struct {
 	IP string `json:"ip"`
 }
 
-func getClientIP(c *fiber.Ctx) (string, error) {
-	url := fmt.Sprintf("https://api.ipify.org?format=json")
+func getClientIP() (string, error) {
+	url := "https://api.ipify.org?format=json"
 	resp, err := http.Get(url)
 	if err != nil {
 		return "", err
