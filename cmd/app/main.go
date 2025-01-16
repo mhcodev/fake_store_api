@@ -41,7 +41,8 @@ func main() {
 	defer conn.Close()
 
 	app := fiber.New(fiber.Config{
-		BodyLimit: RequestMaxSize,
+		BodyLimit:    RequestMaxSize,
+		ErrorHandler: middleware.ErrorHandler,
 	})
 
 	middleware.RegisterPrometheusMetrics()
@@ -65,7 +66,12 @@ func main() {
 	setupRoutes(app, ch)
 	registerPrometheusRoute(app)
 
-	app.Use(middleware.ErrorHandler)
+	app.All("*", func(c *fiber.Ctx) error {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error":   "Not Found",
+			"message": "The requested URL " + c.OriginalURL() + " was not found.",
+		})
+	})
 
 	// Start the server
 	log.Fatal(app.Listen(":4000"))
