@@ -41,8 +41,7 @@ func main() {
 	defer conn.Close()
 
 	app := fiber.New(fiber.Config{
-		BodyLimit:    RequestMaxSize,
-		ErrorHandler: middleware.ErrorHandler,
+		BodyLimit: RequestMaxSize,
 	})
 
 	middleware.RegisterPrometheusMetrics()
@@ -65,6 +64,8 @@ func main() {
 
 	setupRoutes(app, ch)
 	registerPrometheusRoute(app)
+
+	app.Use(middleware.ErrorHandler)
 
 	// Start the server
 	log.Fatal(app.Listen(":4000"))
