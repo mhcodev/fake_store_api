@@ -7,6 +7,7 @@ import (
 )
 
 type GeoInfo struct {
+	Ip      string `json:"ip"`
 	Country string `json:"country_name"`
 }
 
