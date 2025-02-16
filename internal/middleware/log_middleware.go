@@ -36,17 +36,21 @@ func RecordApiLogs(c *fiber.Ctx) error {
 			return
 		}
 
-		redis := container.GetRedisClient()
-		key := fmt.Sprintf("geo:info:%s", ip)
-
-		ctx := context.Background()
 		countryStored := ""
-		countryMap, err := redis.GetAll(ctx, key)
+		ctx := context.Background()
+		key := fmt.Sprintf("geo:info:%s", ip)
+		redis, redisErr := container.GetRedisClient()
 
-		if err != nil {
-			fmt.Println("not found", key)
+		if redisErr != nil {
+			fmt.Println(redisErr)
 		} else {
-			countryStored = countryMap["name"]
+			countryMap, err := redis.GetAll(ctx, key)
+
+			if err != nil {
+				countryStored = ""
+			} else {
+				countryStored = countryMap["name"]
+			}
 		}
 
 		if countryStored == "" {
@@ -61,11 +65,14 @@ func RecordApiLogs(c *fiber.Ctx) error {
 				country = "unknown"
 			}
 
-			countryMap := map[string]interface{}{
-				"name": country,
-			}
+			countryStored = country
 
-			redis.Set(ctx, key, countryMap)
+			if redisErr == nil {
+				countryMap := map[string]interface{}{
+					"name": countryStored,
+				}
+				redis.Set(ctx, key, countryMap)
+			}
 		}
 
 		l := models.ApiLog{

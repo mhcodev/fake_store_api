@@ -3,8 +3,8 @@ package container
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"log"
 	"sync"
 	"time"
 
@@ -44,7 +44,8 @@ func StartRedisServer() {
 
 	_, err := client.Ping(ctx).Result()
 	if err != nil {
-		log.Fatalf("Failed to connect to Redis: %v", err)
+		fmt.Println("Redis server disconnected")
+		return
 	}
 
 	fmt.Println("Connected to redis server")
@@ -52,14 +53,14 @@ func StartRedisServer() {
 	NewRedisServer(client)
 }
 
-func GetRedisClient() *RedisServer {
+func GetRedisClient() (*RedisServer, error) {
 	mu.Lock()
 	defer mu.Unlock()
 
 	if RServer == nil || RServer.Client == nil {
-		log.Fatal("Redis server is not initialized.")
+		return nil, errors.New("redis server is not initialized")
 	}
-	return RServer
+	return RServer, nil
 }
 
 func (rs *RedisServer) Set(ctx context.Context, key string, values map[string]interface{}) error {
