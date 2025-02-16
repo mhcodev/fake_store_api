@@ -9,7 +9,11 @@ import (
 )
 
 func setupRoutes(app *fiber.App, ch *container.ContainerHandler) {
-	api := app.Group("/api", middleware.RecordRequestLatency, middleware.RecordRequestCount)
+	api := app.Group("/api",
+		middleware.RecordRequestLatency,
+		middleware.RecordRequestCount,
+		middleware.RecordRequestFrequency,
+	)
 
 	v1 := api.Group("/v1")
 

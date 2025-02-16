@@ -12,6 +12,7 @@ import (
 func RegisterPrometheusMetrics() {
 	getAPILatencyMetric()
 	getAPIRequestMetric()
+	getAPIFrequencyMetric()
 }
 
 func RecordRequestLatency(c *fiber.Ctx) error {
@@ -37,11 +38,26 @@ func RecordRequestCount(c *fiber.Ctx) error {
 	return next
 }
 
+func RecordRequestFrequency(c *fiber.Ctx) error {
+	start := time.Now()
+	err := c.Next()
+	duration := time.Since(start).Seconds()
+
+	if isValidPath(c.Path()) {
+		apiFrequency.WithLabelValues(c.Method(), normalizePath(c.Path())).Observe(duration)
+		apiRequests.WithLabelValues(c.Method(), normalizePath(c.Path())).Inc()
+	}
+
+	return err
+}
+
 var (
-	apiLatency   *prometheus.SummaryVec
-	apiRequests  *prometheus.CounterVec
-	latencyOnce  sync.Once
-	requestsOnce sync.Once
+	apiLatency    *prometheus.SummaryVec
+	apiRequests   *prometheus.CounterVec
+	apiFrequency  *prometheus.HistogramVec
+	latencyOnce   sync.Once
+	requestsOnce  sync.Once
+	frequencyOnce sync.Once
 )
 
 func getAPILatencyMetric() {
@@ -70,6 +86,22 @@ func getAPIRequestMetric() {
 			[]string{"method", "path"},
 		)
 		prometheus.MustRegister(apiRequests)
+	})
+
+}
+
+func getAPIFrequencyMetric() {
+	frequencyOnce.Do(func() {
+		apiFrequency = prometheus.NewHistogramVec(
+			prometheus.HistogramOpts{
+				Namespace: "api",
+				Name:      "requests_frequency",
+				Help:      "API requests Frequency by endpoint",
+				Buckets:   prometheus.DefBuckets,
+			},
+			[]string{"method", "path"},
+		)
+		prometheus.MustRegister(apiFrequency)
 	})
 
 }
