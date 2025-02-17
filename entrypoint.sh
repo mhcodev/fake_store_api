@@ -7,7 +7,7 @@ if [ "$ENVIRONMENT" = "development" ]; then
   exec air
 elif [ "$ENVIRONMENT" = "production" ]; then
   echo "Running go run main.go..."
-  exec ./tmp/main
+  exec ./main
 else
   echo "Unknown environment: $ENVIRONMENT. Exiting."
   exit 1

@@ -32,7 +32,7 @@ func NewRedisServer(client *redis.Client) {
 
 func StartRedisServer() {
 	client := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
+		Addr:     "redis-server:6379",
 		Password: "", // No password set
 		DB:       0,  // Use default DB
 		Protocol: 2,  // Connection protocol
