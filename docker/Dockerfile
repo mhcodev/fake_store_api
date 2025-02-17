@@ -18,8 +18,6 @@ COPY --from=builder app/tmp/main .
 
 COPY entrypoint.sh .
 
-RUN if [ ! -f ".env" ]; then echo ".env file not found! Aborting build."; exit 1; fi
-
 COPY .env .env
 
 RUN chmod +x entrypoint.sh

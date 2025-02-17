@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -42,6 +43,25 @@ func ConnectToPostgresDB() *pgxpool.Pool {
 	dbpool, err := pgxpool.NewWithConfig(context.Background(), config)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
+		os.Exit(1)
+	}
+
+	var dbError error
+
+	for i := 0; i < 5; i++ { // Retry 5 times
+		err = dbpool.Ping(context.Background())
+		if err != nil {
+			dbError = err
+			fmt.Println("Triying to connect to DB: ", i)
+		} else {
+			dbError = nil
+			break
+		}
+		time.Sleep(time.Second * 2)
+	}
+
+	if dbError != nil {
+		fmt.Fprintf(os.Stderr, "Is not ready to make queries, check and run again: %v", err)
 		os.Exit(1)
 	}
 
