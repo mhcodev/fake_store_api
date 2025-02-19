@@ -15,6 +15,33 @@ services:
       - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus-server
+    ports:
+      - "9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+  nginx:
+    image: nginx:alpine
+    container_name: nginx-prometheus
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./prometheus/.htpasswd:/etc/nginx/.htpasswd
+    depends_on:
+      - prometheus
+  grafana:
+    image: grafana/grafana-enterprise
+    container_name: grafana-server
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
   golang-api:
     container_name: fake-store-api
     build:
@@ -32,6 +59,8 @@ services:
     depends_on:
       - postgres
       - redis
+      - nginx
+      - prometheus
 
 volumes:
   redis-data:

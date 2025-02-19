@@ -4,4 +4,4 @@ global:
 scrape_configs:
   - job_name: "fake_store_api"
     static_configs:
-      - targets: ["fake_store_api:4000"]  # Replace with your API's address
+      - targets: ["fake-store-api:4000"]  # Replace with your API's address
