@@ -1,5 +1,7 @@
 # FAKE STORE API
 
+## URL BASE: https://fake-store-api.mhdeploy.com
+
 ## Auth Endpoints
 ### GET /api/v1/auth/data
 - **Description**: Get data from token
@@ -27,8 +29,8 @@
   - Example
     ```json
     {
-        "email": "miimxquxxx@gmail.com",
-        "password": "qwerty123"
+        "email": "Jill_Rogahn94@gmail.com",
+        "password": "123456"
     }
     ```
 - **Response**:
@@ -36,21 +38,21 @@
    - **Body**:
      ```json
       {
-          "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzI0NDM5MDAsInVzZXJfaWQiOjExNX0.TJv8xgrX0nnpOxrUBk5Jqk206C8MtQfYyoorUyLYQU0",
+          "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDAwOTYzMDcsInVzZXJJRCI6MSwidXNlclR5cGVJRCI6Mn0.kRdGvmjymhRjc2NGcR02QciyHTpOlIWUPdhev4-hx0I",
           "code": 200,
-          "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzMwNDc4MDAsInVzZXJfaWQiOjExNX0.Yyxmj1P4QO5Yfb2vItvQaoC6qWiOQRR6P3CROh9no2A",
+          "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDA3MDAyMDcsInVzZXJJRCI6MSwidXNlclR5cGVJRCI6Mn0.iVHzXaixP4dGeHu9T7-yOu_aD0IauGEOyjHz98syEDc",
           "success": true,
           "user": {
-              "id": 115,
-              "userTypeID": 3,
+              "id": 1,
+              "userTypeID": 2,
               "name": "Jill",
               "email": "Jill_Rogahn94@gmail.com",
-              "password": "df85418c5fef51124e9f255b723d9ace2761ba44d00542a815eafb106bfd6092",
-              "avatar": "http://[BASE_URL]/uploads/PROFILE2.png",
-              "phone": "987123987",
+              "password": "$2a$10$Hhv4LRJQZd62XYxu/KbAzO3XAWJDJkYRe0GvlCWbeFWxvnVF9A08u",
+              "avatar": "http://172.22.56.31:3000/uploads/PROFILE2.png",
+              "phone": "+1 (993) 554-2275",
               "status": 1,
-              "createdAt": "2024-10-09T01:58:35Z",
-              "updatedAt": "2024-10-09T01:58:35Z"
+              "createdAt": "2024-11-24T19:16:51Z",
+              "updatedAt": "2024-11-24T19:16:51Z"
           }
       }
      ```
@@ -76,7 +78,7 @@
       }
      ```
 ## User Endpoints
-### GET /api/v1/users
+### GET /api/v1/user - [view example](https://fake-store-api.mhdeploy.com/api/v1/user)
 - **Description**: Fetch user by Params
 - **URL Parameters**:
   - `limit` (integer, optional): Quantity of rows (default 15)
@@ -109,7 +111,7 @@
         ]
       }
      ```
-### GET /api/v1/users/{id}
+### GET /api/v1/user/{id} - [view example](https://fake-store-api.mhdeploy.com/api/v1/user/1)
 - **Description**: Fetch user by ID
 - **URL Parameters**:
   - `id` (integer, required): ID of the user
@@ -260,7 +262,7 @@
      ```
 
 ## Category Endpoints
-### GET /api/v1/category
+### GET /api/v1/category - [view example](https://fake-store-api.mhdeploy.com/api/v1/category)
 - **Description**: Fetch all categories
 - **URL Parameters**:
   - `limit` (integer, optional): Quantity of rows (default 15)
@@ -301,7 +303,7 @@
           "success": true
       }
      ```
-### GET /api/v1/category/:id
+### GET /api/v1/category/:id - [view example](https://fake-store-api.mhdeploy.com/api/v1/category/1)
 - **Description**: Fetch category by ID
 - **URL Parameters**:
   - `id` (integer, required): id of the category
@@ -395,7 +397,7 @@
       }
      ```
 ## Product Endpoints
-### GET /api/v1/product/:id
+### GET /api/v1/product/:id - [view example](https://fake-store-api.mhdeploy.com/api/v1/product/1)
 - **Description**: Returns a product by ID
 - **URL Parameters**:
   - `id` (integer, required): id of the product
@@ -431,7 +433,7 @@
           "success": true
       }
      ```
-### GET /api/v1/product
+### GET /api/v1/product - [view example](https://fake-store-api.mhdeploy.com/api/v1/product)
 - **Description**: Returns a list of products
 - **URL Parameters**:
   - `id` (integer, required): id of the product
