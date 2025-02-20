@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
 	"sync"
 	"time"
 
@@ -31,8 +32,10 @@ func NewRedisServer(client *redis.Client) {
 }
 
 func StartRedisServer() {
+	host := os.Getenv("REDIS_HOST")
+	port := os.Getenv("REDIS_PORT")
 	client := redis.NewClient(&redis.Options{
-		Addr:     "redis-server:6379",
+		Addr:     fmt.Sprintf("%s:%s", host, port),
 		Password: "", // No password set
 		DB:       0,  // Use default DB
 		Protocol: 2,  // Connection protocol
