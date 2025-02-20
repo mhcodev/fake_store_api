@@ -2,6 +2,34 @@
 
 ## URL BASE: https://fake-store-api.mhdeploy.com
 
+## This project contains these tools:
+- Golang
+- PostgreSQL
+- Prometheus
+- Grafana
+- Redis
+- Docker Compose
+
+## How to run the project
+Run this command to build the image
+```bash
+make docker-build
+```
+
+Exec the schemas file `db/schemas.sql` in PostgreSQL DB
+
+Finally run the container
+```bash
+make docker-run
+```
+
+## Run in development
+Ensure you have air package installed
+```bash
+air
+```
+
+
 ## Auth Endpoints
 ### GET /api/v1/auth/data
 - **Description**: Get data from token
