@@ -13,6 +13,17 @@
 - Docker Compose
 
 ## How to run the project
+
+Install make on Linux (Debian/Ubuntu)
+```bash
+sudo apt install make
+```
+
+Install htpasswd on Linux (Debian/Ubuntu) for Prometheus password
+```bash
+sudo apt install apache2-utils
+```
+
 Run this command to build the image
 ```bash
 make docker-build
