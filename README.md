@@ -1,6 +1,8 @@
 # FAKE STORE API
-
 ## URL BASE: https://fake-store-api.mhdeploy.com
+
+![image](https://github.com/user-attachments/assets/a79e871b-1120-4e03-a649-bc2d667efccf)
+![image](https://github.com/user-attachments/assets/791c13df-008c-4824-bb41-20d955c0630d)
 
 ## This project contains these tools:
 - Golang
@@ -28,6 +30,7 @@ Ensure you have air package installed
 ```bash
 air
 ```
+
 
 
 ## Auth Endpoints
