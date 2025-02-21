@@ -1,5 +1,8 @@
 # FAKE STORE API
 
+![image](https://github.com/user-attachments/assets/a79e871b-1120-4e03-a649-bc2d667efccf)
+![image](https://github.com/user-attachments/assets/791c13df-008c-4824-bb41-20d955c0630d)
+
 ## Auth Endpoints
 ### GET /api/v1/auth/data
 - **Description**: Get data from token
