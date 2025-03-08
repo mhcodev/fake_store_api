@@ -372,10 +372,8 @@ air
   - Example
     ```json
     {
-        "category": {
-            "name": "Tecnology",
-            "imageURL": "http://[BASE_URL]/uploads/category_5_.jpeg",
-        }
+        "name": "Tecnology",
+        "imageURL": "http://[BASE_URL]/uploads/category_5_.jpeg",
     }
     ```
 - **Response**:
@@ -403,10 +401,8 @@ air
  - Example
     ```json
     {
-        "category": {
-            "name": "Tecnology v2",
-            "imageURL": "http://[BASE_URL]/uploads/category_5_.jpeg",
-        }
+        "name": "Tecnology v2",
+        "imageURL": "http://[BASE_URL]/uploads/category_5_.jpeg",
     }
     ```
 - **Response**:

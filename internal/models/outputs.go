@@ -5,7 +5,7 @@ type JSONReponseMany struct {
 	Code    int                 `json:"code"`
 	Limit   int                 `json:"limit,omitempty"`
 	Offset  int                 `json:"offset,omitempty"`
-	Total   int                 `json:"total,omitempty"`
+	Count   int                 `json:"count,omitempty"`
 	Errors  map[string][]string `json:"errors,omitempty"`
 	Data    any                 `json:"data"`
 }

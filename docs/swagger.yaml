@@ -1,5 +1,39 @@
 basePath: /api/v1
 definitions:
+  handlers.CreateCategoryRequest:
+    properties:
+      imageURL:
+        type: string
+      name:
+        type: string
+    type: object
+  handlers.UpdateCategoryRequest:
+    properties:
+      imageURL:
+        type: string
+      name:
+        type: string
+    type: object
+  models.JSONReponseMany:
+    properties:
+      code:
+        type: integer
+      count:
+        type: integer
+      data: {}
+      errors:
+        additionalProperties:
+          items:
+            type: string
+          type: array
+        type: object
+      limit:
+        type: integer
+      offset:
+        type: integer
+      success:
+        type: boolean
+    type: object
   models.JSONReponseOne:
     properties:
       code:
@@ -97,4 +131,87 @@ paths:
       summary: Generate a new access token for user
       tags:
       - Auth
+  /category:
+    get:
+      consumes:
+      - application/json
+      description: Fetch category by ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.JSONReponseOne'
+      summary: Fetch category by ID
+      tags:
+      - Category
+    post:
+      consumes:
+      - application/json
+      description: Create a category
+      parameters:
+      - description: Category body request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.CreateCategoryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.JSONReponseOne'
+      summary: Create a category
+      tags:
+      - Category
+  /category/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a category
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.JSONReponseOne'
+      summary: Delete a category
+      tags:
+      - Category
+    put:
+      consumes:
+      - application/json
+      description: Update a category
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Category body request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.UpdateCategoryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.JSONReponseOne'
+      summary: Update a category
+      tags:
+      - Category
 swagger: "2.0"

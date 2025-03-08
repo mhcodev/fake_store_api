@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
+	_ "github.com/mhcodev/fake_store_api/docs"
 	"github.com/mhcodev/fake_store_api/internal/models"
 	"github.com/mhcodev/fake_store_api/internal/services"
 	"github.com/mhcodev/fake_store_api/internal/util"
@@ -20,6 +21,14 @@ func NewCategoryHandler(categoryService *services.CategoryService) *CategoryHand
 	return &CategoryHandler{CategoryService: categoryService}
 }
 
+// Get Categories godoc
+// @Summary Fetch all categories
+// @Description Fetch all categories
+// @Tags Category
+// @Accept json
+// @Produce json
+// @Success 200 {object} models.JSONReponseMany
+// @Router /category [get]
 func (h *CategoryHandler) GetCategories(c *fiber.Ctx) error {
 	categories, err := h.CategoryService.GetCategories(c.Context())
 	var validationErrors = validators.ValidationErrors{}
@@ -31,14 +40,23 @@ func (h *CategoryHandler) GetCategories(c *fiber.Ctx) error {
 
 	count, _ := h.CategoryService.GetTotalOfCategories(c.Context())
 
-	response := fiber.Map{
-		"count":      count,
-		"categories": categories,
+	response := models.JSONReponseMany{
+		Success: true,
+		Count:   count,
+		Data:    categories,
 	}
 
-	return util.SuccessReponse(c, response)
+	return c.Status(fiber.StatusOK).JSON(response)
 }
 
+// Get Category by ID godoc
+// @Summary Fetch category by ID
+// @Description Fetch category by ID
+// @Tags Category
+// @Accept json
+// @Produce json
+// @Success 200 {object} models.JSONReponseOne
+// @Router /category [get]
 func (h *CategoryHandler) GetCategoryByID(c *fiber.Ctx) error {
 	categoryID, err := strconv.Atoi(c.Params("id", "0"))
 	var validationErrors = validators.ValidationErrors{}
@@ -55,15 +73,28 @@ func (h *CategoryHandler) GetCategoryByID(c *fiber.Ctx) error {
 		return util.ErrorReponse(c, fiber.StatusNotFound, nil, validationErrors)
 	}
 
-	response := fiber.Map{"category": category}
+	response := models.JSONReponseOne{
+		Success: true,
+		Data:    category,
+	}
 
-	return util.SuccessReponse(c, response)
+	return c.Status(fiber.StatusOK).JSON(response)
 }
 
 type CreateCategoryRequest struct {
-	Category models.Category `json:"category"`
+	Name     string `json:"name"`
+	ImageURL string `json:"imageURL"`
 }
 
+// Create Category godoc
+// @Summary Create a category
+// @Description Create a category
+// @Tags Category
+// @Accept json
+// @Produce json
+// @Param body body CreateCategoryRequest true "Category body request"
+// @Success 200 {object} models.JSONReponseOne
+// @Router /category [post]
 func (h *CategoryHandler) CreateCategory(c *fiber.Ctx) error {
 	var request CreateCategoryRequest
 	var validationErrors = validators.ValidationErrors{}
@@ -74,17 +105,15 @@ func (h *CategoryHandler) CreateCategory(c *fiber.Ctx) error {
 		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, validationErrors)
 	}
 
-	category := request.Category
-
-	if strings.TrimSpace(category.Name) == "" {
+	if strings.TrimSpace(request.Name) == "" {
 		validationErrors.AddError("name", "name is required")
 	}
 
-	if strings.TrimSpace(category.ImageURL) == "" {
+	if strings.TrimSpace(request.ImageURL) == "" {
 		validationErrors.AddError("imageURL", "imageURL is required")
 	}
 
-	validImage, _ := pkg.IsImageURL(strings.TrimSpace(category.ImageURL))
+	validImage, _ := pkg.IsImageURL(strings.TrimSpace(request.ImageURL))
 
 	if !validImage {
 		validationErrors.AddError("imageURL", "imageURL has to contains a valid image")
@@ -94,21 +123,40 @@ func (h *CategoryHandler) CreateCategory(c *fiber.Ctx) error {
 		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, validationErrors)
 	}
 
+	category := models.Category{
+		Name:     request.Name,
+		ImageURL: request.ImageURL,
+	}
+
 	err := h.CategoryService.CreateCategory(c.Context(), &category)
 
 	if err != nil {
 		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, validationErrors)
 	}
 
-	response := fiber.Map{"category": category}
+	response := models.JSONReponseOne{
+		Success: true,
+		Data:    category,
+	}
 
-	return util.SuccessReponse(c, response)
+	return c.Status(fiber.StatusOK).JSON(response)
 }
 
 type UpdateCategoryRequest struct {
-	Category models.Category `json:"category"`
+	Name     string `json:"name"`
+	ImageURL string `json:"imageURL"`
 }
 
+// Update Category godoc
+// @Summary Update a category
+// @Description Update a category
+// @Tags Category
+// @Accept json
+// @Produce json
+// @Param id path int true "Category ID"
+// @Param body body UpdateCategoryRequest true "Category body request"
+// @Success 200 {object} models.JSONReponseOne
+// @Router /category/{id} [put]
 func (h *CategoryHandler) UpdateCategory(c *fiber.Ctx) error {
 	var request UpdateCategoryRequest
 	var validationErrors = validators.ValidationErrors{}
@@ -133,14 +181,14 @@ func (h *CategoryHandler) UpdateCategory(c *fiber.Ctx) error {
 		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, validationErrors)
 	}
 
-	if strings.TrimSpace(request.Category.Name) != "" {
-		category.Name = request.Category.Name
+	if strings.TrimSpace(request.Name) != "" {
+		category.Name = request.Name
 	}
 
-	if strings.TrimSpace(request.Category.ImageURL) != "" {
-		category.ImageURL = request.Category.ImageURL
+	if strings.TrimSpace(request.ImageURL) != "" {
+		category.ImageURL = request.ImageURL
 
-		validImage, _ := pkg.IsImageURL(strings.TrimSpace(request.Category.ImageURL))
+		validImage, _ := pkg.IsImageURL(strings.TrimSpace(request.ImageURL))
 
 		if !validImage {
 			validationErrors.AddError("imageURL", "imageURL has to contains a valid image")
@@ -163,6 +211,15 @@ func (h *CategoryHandler) UpdateCategory(c *fiber.Ctx) error {
 	return util.SuccessReponse(c, response)
 }
 
+// Delete Categor by ID godoc
+// @Summary Delete a category
+// @Description Delete a category
+// @Tags Category
+// @Accept json
+// @Produce json
+// @Param id path int true "Category ID"
+// @Success 200 {object} models.JSONReponseOne
+// @Router /category/{id} [delete]
 func (h *CategoryHandler) DeleteCategory(c *fiber.Ctx) error {
 	var validationErrors = validators.ValidationErrors{}
 
