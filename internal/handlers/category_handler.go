@@ -206,9 +206,12 @@ func (h *CategoryHandler) UpdateCategory(c *fiber.Ctx) error {
 		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, validationErrors)
 	}
 
-	response := fiber.Map{"category": category}
+	response := models.JSONReponseOne{
+		Success: true,
+		Data:    category,
+	}
 
-	return util.SuccessReponse(c, response)
+	return c.Status(fiber.StatusOK).JSON(response)
 }
 
 // Delete Categor by ID godoc

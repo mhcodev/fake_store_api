@@ -14,6 +14,11 @@ definitions:
       name:
         type: string
     type: object
+  handlers.UserEmailIsAvailableRequest:
+    properties:
+      email:
+        type: string
+    type: object
   models.JSONReponseMany:
     properties:
       code:
@@ -53,6 +58,40 @@ definitions:
     properties:
       refreshToken:
         type: string
+    type: object
+  services.UserCreateInput:
+    properties:
+      avatar:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      phone:
+        type: string
+      status:
+        type: integer
+      userTypeID:
+        type: integer
+    type: object
+  services.UserUpdateInput:
+    properties:
+      avatar:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      phone:
+        type: string
+      status:
+        type: integer
+      userTypeID:
+        type: integer
     type: object
 host: localhost:4000
 info:
@@ -214,4 +253,154 @@ paths:
       summary: Update a category
       tags:
       - Category
+  /user:
+    get:
+      consumes:
+      - application/json
+      description: Fetch users by Params
+      parameters:
+      - description: Number of users to return (default 15)
+        in: query
+        name: limit
+        type: integer
+      - description: Offset for pagination (default 0)
+        in: query
+        name: offset
+        type: integer
+      - description: Filter by name
+        in: query
+        name: name
+        type: string
+      - description: Filter by email
+        in: query
+        name: type
+        type: integer
+      - description: Filter by email
+        in: query
+        name: email
+        type: string
+      - description: Filter by email
+        in: query
+        name: status
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.JSONReponseMany'
+      summary: Fetch users by Params
+      tags:
+      - User
+    post:
+      consumes:
+      - application/json
+      description: Create a user
+      parameters:
+      - description: User body request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/services.UserCreateInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.JSONReponseOne'
+      summary: Create a user
+      tags:
+      - User
+  /user/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.JSONReponseOne'
+      summary: Delete a user
+      tags:
+      - User
+    get:
+      consumes:
+      - application/json
+      description: Get user by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.JSONReponseOne'
+      summary: Get user by ID
+      tags:
+      - User
+    put:
+      consumes:
+      - application/json
+      description: Update a user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: User body request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/services.UserUpdateInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.JSONReponseOne'
+      summary: Update a user
+      tags:
+      - User
+  /user/email/is-available:
+    post:
+      consumes:
+      - application/json
+      description: Check if email is available
+      parameters:
+      - description: Email body request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.UserEmailIsAvailableRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.JSONReponseOne'
+      summary: Check if email is available
+      tags:
+      - User
 swagger: "2.0"
