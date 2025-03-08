@@ -19,6 +19,15 @@ const (
 	UploadDir      = "./uploads"
 )
 
+// @title Fake Store API
+// @version 1.0
+// @description This is a sample server for a fake store API.
+// @termsOfService http://swagger.io/terms/
+// @contact.name API Support
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+// @host localhost:4000
+// @BasePath /api/v1
 func main() {
 	// Load the .env file
 	err := godotenv.Load()

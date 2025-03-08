@@ -43,12 +43,11 @@ func ConnectToPostgresDB() *pgxpool.Pool {
 	dbpool, err := pgxpool.NewWithConfig(context.Background(), config)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
-		os.Exit(1)
 	}
 
 	var dbError error
 
-	for i := 0; i < 5; i++ { // Retry 5 times
+	for i := range 5 { // Retry 5 times
 		err = dbpool.Ping(context.Background())
 		if err != nil {
 			dbError = err

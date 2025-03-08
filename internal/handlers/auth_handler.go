@@ -4,6 +4,9 @@ import (
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
+
+	_ "github.com/mhcodev/fake_store_api/docs"
+	"github.com/mhcodev/fake_store_api/internal/models"
 	"github.com/mhcodev/fake_store_api/internal/services"
 	"github.com/mhcodev/fake_store_api/internal/util"
 	"github.com/mhcodev/fake_store_api/internal/validators"
@@ -18,6 +21,15 @@ func NewAuthHandler(authService *services.AuthService) *AuthHandler {
 	return &AuthHandler{AuthService: authService}
 }
 
+// Login godoc
+// @Summary Log in as a user using username and password
+// @Description get a data of a user logged
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param body body services.LoginInput true "Login credentials"
+// @Success 200 {object} models.JSONReponseOne
+// @Router /auth/login [post]
 func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	var input services.LoginInput
 	var validationErrors = validators.ValidationErrors{}
@@ -40,7 +52,7 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, validationErrors)
 	}
 
-	data := make(map[string]interface{}, 0)
+	data := make(map[string]any, 0)
 	data["userID"] = user.ID
 	data["userTypeID"] = user.UserTypeID
 
@@ -58,12 +70,19 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, validationErrors)
 	}
 
-	response := make(map[string]interface{})
-	response["user"] = user
-	response["accessToken"] = accessToken
-	response["refreshToken"] = refreshToken
+	output := models.UserLoginOutput{
+		User:         *user,
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	}
 
-	return util.SuccessReponse(c, response)
+	resp := models.JSONReponseOne{
+		Success: true,
+		Code:    fiber.StatusOK,
+		Data:    output,
+	}
+
+	return c.Status(fiber.StatusOK).JSON(resp)
 }
 
 func (h *AuthHandler) GetTokenData(c *fiber.Ctx) error {

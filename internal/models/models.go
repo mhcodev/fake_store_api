@@ -11,7 +11,7 @@ type QueryParams struct {
 
 type User struct {
 	ID         int       `json:"id"`
-	UserTypeID int       `json:"userTypeID"`
+	UserTypeID int       `json:"typeID"`
 	Name       string    `json:"name"`
 	Email      string    `json:"email"`
 	Password   string    `json:"password"`

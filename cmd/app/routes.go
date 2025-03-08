@@ -6,9 +6,12 @@ import (
 	"github.com/mhcodev/fake_store_api/internal/container"
 	"github.com/mhcodev/fake_store_api/internal/middleware"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	fiberSwagger "github.com/swaggo/fiber-swagger"
 )
 
 func setupRoutes(app *fiber.App, ch *container.ContainerHandler) {
+	app.Get("/swagger/*", fiberSwagger.WrapHandler)
+
 	api := app.Group("/api",
 		middleware.RecordRequestLatency,
 		middleware.RecordRequestCount,

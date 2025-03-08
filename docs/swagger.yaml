@@ -1,0 +1,52 @@
+basePath: /api/v1
+definitions:
+  models.JSONReponseOne:
+    properties:
+      code:
+        type: integer
+      data: {}
+      success:
+        type: boolean
+    type: object
+  services.LoginInput:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+host: localhost:4000
+info:
+  contact:
+    name: API Support
+  description: This is a sample server for a fake store API.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Fake Store API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: get a data of a user logged
+      parameters:
+      - description: Login credentials
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/services.LoginInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.JSONReponseOne'
+      summary: Log in as a user using username and password
+      tags:
+      - Auth
+swagger: "2.0"
