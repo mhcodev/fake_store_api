@@ -85,6 +85,15 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(resp)
 }
 
+// Get Token godoc
+// @Summary Get token data from token
+// @Description Get data from token
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer token"
+// @Success 200 {object} models.JSONReponseOne
+// @Router /auth/data [get]
 func (h *AuthHandler) GetTokenData(c *fiber.Ctx) error {
 	var validationErrors = validators.ValidationErrors{}
 
@@ -110,12 +119,24 @@ func (h *AuthHandler) GetTokenData(c *fiber.Ctx) error {
 		return util.ErrorReponse(c, fiber.StatusBadRequest, nil, validationErrors)
 	}
 
-	response := make(map[string]interface{})
-	response["data"] = data
+	response := models.JSONReponseOne{
+		Success: true,
+		Code:    fiber.StatusOK,
+		Data:    data,
+	}
 
-	return util.SuccessReponse(c, response)
+	return c.Status(fiber.StatusOK).JSON(response)
 }
 
+// Get access token from refresh token godoc
+// @Summary Generate a new access token for user
+// @Description Get data from token
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param body body services.NewTokenInput true "refresh token credential"
+// @Success 200 {object} models.JSONReponseOne
+// @Router /auth/refresh [post]
 func (h *AuthHandler) AccessTokenFromRefreshToken(c *fiber.Ctx) error {
 	var input services.NewTokenInput
 	var validationErrors = validators.ValidationErrors{}
@@ -138,5 +159,5 @@ func (h *AuthHandler) AccessTokenFromRefreshToken(c *fiber.Ctx) error {
 		response[k] = v
 	}
 
-	return util.SuccessReponse(c, response)
+	return c.Status(fiber.StatusOK).JSON(response)
 }

@@ -15,6 +15,11 @@ definitions:
       password:
         type: string
     type: object
+  services.NewTokenInput:
+    properties:
+      refreshToken:
+        type: string
+    type: object
 host: localhost:4000
 info:
   contact:
@@ -27,6 +32,27 @@ info:
   title: Fake Store API
   version: "1.0"
 paths:
+  /auth/data:
+    get:
+      consumes:
+      - application/json
+      description: Get data from token
+      parameters:
+      - description: Bearer token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.JSONReponseOne'
+      summary: Get token data from token
+      tags:
+      - Auth
   /auth/login:
     post:
       consumes:
@@ -47,6 +73,28 @@ paths:
           schema:
             $ref: '#/definitions/models.JSONReponseOne'
       summary: Log in as a user using username and password
+      tags:
+      - Auth
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Get data from token
+      parameters:
+      - description: refresh token credential
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/services.NewTokenInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.JSONReponseOne'
+      summary: Generate a new access token for user
       tags:
       - Auth
 swagger: "2.0"
