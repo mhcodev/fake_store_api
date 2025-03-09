@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 	"github.com/mhcodev/fake_store_api/internal/config"
@@ -59,6 +60,9 @@ func main() {
 	middleware.RegisterPrometheusMetrics()
 
 	app.Use(middleware.RequestSizeLimit(RequestMaxSize))
+	app.Use(cors.New(cors.Config{
+		AllowMethods: "GET,POST,PUT,DELETE",
+	}))
 
 	// Ensure the uploads directory exists
 	os.MkdirAll(UploadDir, os.ModePerm)
