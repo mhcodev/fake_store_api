@@ -21,6 +21,11 @@ func ConnectToPostgresDB() *pgxpool.Pool {
 	dbMode := os.Getenv("DB_SSL_MODE")
 
 	fmt.Println("dbUser: ", dbUser)
+	fmt.Println("dbPass: ", dbPass)
+	fmt.Println("dbHost: ", dbHost)
+	fmt.Println("dbPort: ", dbPort)
+	fmt.Println("dbName: ", dbName)
+	fmt.Println("dbMode: ", dbMode)
 
 	dsn := fmt.Sprintf("user=%s password=%s host=%s port=%s dbname=%s sslmode=%s",
 		dbUser,

@@ -24,12 +24,23 @@ Install htpasswd on Linux (Debian/Ubuntu) for Prometheus password
 sudo apt install apache2-utils
 ```
 
+>[!IMPORTANT]
+>* sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list
+>* curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/postgresql.gpg
+>* sudo apt update
+>* sudo apt install postgresql-16 postgresql-contrib-16
+>* Configure your user & password db
+>* sudo systemctl start postgresql
+>* sudo systemctl enable postgresql
+>* Change ".env.example" to ".env"
+>* Configure ".env" file with your credentials
+>* Exec the schemas file `db/schemas.sql` in PostgreSQL DB
+
+
 Run this command to build the image
 ```bash
 make docker-build
 ```
-
-Exec the schemas file `db/schemas.sql` in PostgreSQL DB
 
 Finally run the container
 ```bash
@@ -37,6 +48,10 @@ make docker-run
 ```
 
 ## Run in development
+Install Golang dependencies
+```bash
+go mod tidy
+```
 Ensure you have air package installed
 ```bash
 air

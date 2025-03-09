@@ -14,7 +14,7 @@ DB_CONTAINER=postgres-db
 
 
 # Build and Run the API
-.PHONY: docker-build docker-run docker-stop migrate
+.PHONY: docker-build docker-run docker-stop docker-delete migrate
 
 ## Build the Docker image
 docker-build:
@@ -30,3 +30,11 @@ docker-run:
 ## Stop the container
 docker-stop:
 	$(DOCKER_COMPOSE) down
+
+## Stop the container
+docker-delete:
+	docker container prune -f
+	docker image prune -f
+	docker rmi $$(docker images -q)
+	docker volume prune -f
+	docker volume rm $$(docker volume ls -q)
