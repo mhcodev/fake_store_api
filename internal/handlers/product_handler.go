@@ -18,6 +18,16 @@ func NewProductHandler(productService *services.ProductService) *ProductHandler 
 	return &ProductHandler{ProductService: productService}
 }
 
+// Get products by params godoc
+// @Summary Fetch products by Params
+// @Description Fetch products by Params
+// @Tags Product
+// @Accept json
+// @Produce json
+// @Param limit query int false "Number of products to return (default 15)"
+// @Param offset query int false "Offset for pagination (default 0)"
+// @Success 200 {object} models.JSONReponseMany
+// @Router /product [get]
 func (h *ProductHandler) GetProductsByParams(c *fiber.Ctx) error {
 	limit := c.QueryInt("limit", 15)
 	offset := c.QueryInt("offset", 0)
@@ -37,13 +47,27 @@ func (h *ProductHandler) GetProductsByParams(c *fiber.Ctx) error {
 
 	count, _ := h.ProductService.GetTotalOfProducts(c.Context())
 
-	response := make(map[string]interface{})
-	response["count"] = count
-	response["products"] = products
+	response := models.JSONReponseMany{
+		Success: true,
+		Code:    fiber.StatusOK,
+		Limit:   limit,
+		Offset:  offset,
+		Count:   count,
+		Data:    products,
+	}
 
-	return util.SuccessReponse(c, response)
+	return c.Status(fiber.StatusOK).JSON(response)
 }
 
+// Get by ID godoc
+// @Summary Get product by ID
+// @Description Get product by ID
+// @Tags Product
+// @Accept json
+// @Produce json
+// @Param id path int true "Product ID"
+// @Success 200 {object} models.JSONReponseOne
+// @Router /product/{id} [get]
 func (h *ProductHandler) GetProductByID(c *fiber.Ctx) error {
 	ID, err := c.ParamsInt("id", 0)
 	var validationErrors = validators.ValidationErrors{}
@@ -60,12 +84,24 @@ func (h *ProductHandler) GetProductByID(c *fiber.Ctx) error {
 		return util.ErrorReponse(c, fiber.StatusNotFound, nil, validationErrors)
 	}
 
-	response := make(map[string]interface{})
-	response["product"] = product
+	response := models.JSONReponseOne{
+		Success: true,
+		Code:    fiber.StatusOK,
+		Data:    product,
+	}
 
-	return util.SuccessReponse(c, response)
+	return c.Status(fiber.StatusOK).JSON(response)
 }
 
+// Create a product godoc
+// @Summary Create a product
+// @Description Create a product
+// @Tags Product
+// @Accept json
+// @Produce json
+// @Param body body services.ProductCreateInput true "Product body request"
+// @Success 200 {object} models.JSONReponseOne
+// @Router /product [post]
 func (h *ProductHandler) CreateProduct(c *fiber.Ctx) error {
 	var input services.ProductCreateInput
 	var validationErrors = validators.ValidationErrors{}
@@ -88,12 +124,25 @@ func (h *ProductHandler) CreateProduct(c *fiber.Ctx) error {
 		return util.ErrorReponse(c, fiber.StatusNotFound, nil, validationErrors)
 	}
 
-	response := make(map[string]interface{})
-	response["product"] = product
+	response := models.JSONReponseOne{
+		Success: true,
+		Code:    fiber.StatusOK,
+		Data:    product,
+	}
 
-	return util.SuccessReponse(c, response)
+	return c.Status(fiber.StatusOK).JSON(response)
 }
 
+// Update a product godoc
+// @Summary Update a product
+// @Description Update a product
+// @Tags Product
+// @Accept json
+// @Produce json
+// @Param id path int true "Product ID"
+// @Param body body services.ProductUpdateInput true "Product body request"
+// @Success 200 {object} models.JSONReponseOne
+// @Router /product/{id} [put]
 func (h *ProductHandler) UpdateProduct(c *fiber.Ctx) error {
 	ID, err := c.ParamsInt("id", 0)
 
@@ -123,12 +172,24 @@ func (h *ProductHandler) UpdateProduct(c *fiber.Ctx) error {
 		return util.ErrorReponse(c, fiber.StatusNotFound, nil, validationErrors)
 	}
 
-	response := make(map[string]interface{})
-	response["product"] = product
+	response := models.JSONReponseOne{
+		Success: true,
+		Code:    fiber.StatusOK,
+		Data:    product,
+	}
 
-	return util.SuccessReponse(c, response)
+	return c.Status(fiber.StatusOK).JSON(response)
 }
 
+// Delete a product godoc
+// @Summary Delete a product
+// @Description Delete a product
+// @Tags Product
+// @Accept json
+// @Produce json
+// @Param id path int true "Product ID"
+// @Success 200 {object} models.JSONReponseOne
+// @Router /product/{id} [delete]
 func (h *ProductHandler) DeleteProduct(c *fiber.Ctx) error {
 	ID, err := c.ParamsInt("id", 0)
 	var validationErrors = validators.ValidationErrors{}
@@ -145,8 +206,13 @@ func (h *ProductHandler) DeleteProduct(c *fiber.Ctx) error {
 		return util.ErrorReponse(c, fiber.StatusNotFound, nil, validationErrors)
 	}
 
-	response := make(map[string]interface{})
-	response["msg"] = fmt.Sprintf("product with ID %d deleted", ID)
+	msg := fmt.Sprintf("product with ID %d deleted", ID)
 
-	return util.SuccessReponse(c, response)
+	response := models.JSONReponseOne{
+		Success: true,
+		Code:    fiber.StatusOK,
+		Data:    msg,
+	}
+
+	return c.Status(fiber.StatusOK).JSON(response)
 }

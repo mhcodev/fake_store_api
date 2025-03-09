@@ -59,6 +59,52 @@ definitions:
       refreshToken:
         type: string
     type: object
+  services.ProductCreateInput:
+    properties:
+      categoryID:
+        type: integer
+      description:
+        type: string
+      discount:
+        type: number
+      images:
+        items:
+          type: string
+        type: array
+      name:
+        type: string
+      price:
+        type: number
+      sku:
+        type: string
+      status:
+        type: integer
+      stock:
+        type: integer
+    type: object
+  services.ProductUpdateInput:
+    properties:
+      categoryID:
+        type: integer
+      description:
+        type: string
+      discount:
+        type: number
+      images:
+        items:
+          type: string
+        type: array
+      name:
+        type: string
+      price:
+        type: number
+      sku:
+        type: string
+      status:
+        type: integer
+      stock:
+        type: integer
+    type: object
   services.UserCreateInput:
     properties:
       avatar:
@@ -253,6 +299,118 @@ paths:
       summary: Update a category
       tags:
       - Category
+  /product:
+    get:
+      consumes:
+      - application/json
+      description: Fetch products by Params
+      parameters:
+      - description: Number of products to return (default 15)
+        in: query
+        name: limit
+        type: integer
+      - description: Offset for pagination (default 0)
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.JSONReponseMany'
+      summary: Fetch products by Params
+      tags:
+      - Product
+    post:
+      consumes:
+      - application/json
+      description: Create a product
+      parameters:
+      - description: Product body request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/services.ProductCreateInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.JSONReponseOne'
+      summary: Create a product
+      tags:
+      - Product
+  /product/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a product
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.JSONReponseOne'
+      summary: Delete a product
+      tags:
+      - Product
+    get:
+      consumes:
+      - application/json
+      description: Get product by ID
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.JSONReponseOne'
+      summary: Get product by ID
+      tags:
+      - Product
+    put:
+      consumes:
+      - application/json
+      description: Update a product
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Product body request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/services.ProductUpdateInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.JSONReponseOne'
+      summary: Update a product
+      tags:
+      - Product
   /user:
     get:
       consumes:
