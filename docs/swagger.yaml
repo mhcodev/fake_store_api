@@ -299,6 +299,27 @@ paths:
       summary: Update a category
       tags:
       - Category
+  /file/upload:
+    post:
+      consumes:
+      - application/json
+      description: Upload a file
+      parameters:
+      - description: File to upload
+        in: formData
+        name: images
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.JSONReponseOne'
+      summary: Upload a file
+      tags:
+      - File
   /product:
     get:
       consumes:

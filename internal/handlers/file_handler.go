@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/mhcodev/fake_store_api/internal/models"
 	"github.com/mhcodev/fake_store_api/internal/services"
-	"github.com/mhcodev/fake_store_api/internal/util"
 )
 
 type FileHandler struct {
@@ -18,6 +18,15 @@ func NewFileHandler(fileService *services.FileService) *FileHandler {
 	return &FileHandler{fileService: fileService}
 }
 
+// Upload a file godoc
+// @Summary Upload a file
+// @Description Upload a file
+// @Tags File
+// @Accept json
+// @Produce json
+// @Param images formData file true "File to upload"
+// @Success 200 {object} models.JSONReponseOne
+// @Router /file/upload [post]
 func (fh *FileHandler) UploadLoad(c *fiber.Ctx) error {
 	// Retrieve the file from the request
 	form, err := c.MultipartForm()
@@ -40,13 +49,19 @@ func (fh *FileHandler) UploadLoad(c *fiber.Ctx) error {
 
 	results, errors := fh.fileService.ProcessFiles(ctx, files, &wg, c.BaseURL())
 
-	response := make(map[string]interface{}, 0)
-	response["msg"] = "Files uploaded successfully"
-	response["files"] = results
+	data := make(map[string]any, 0)
+	data["msg"] = "Files uploaded successfully"
+	data["files"] = results
 
 	if len(errors) > 0 {
-		response["errors"] = errors
+		data["errors"] = errors
 	}
 
-	return util.SuccessReponse(c, response)
+	response := models.JSONReponseOne{
+		Success: true,
+		Code:    fiber.StatusOK,
+		Data:    data,
+	}
+
+	return c.Status(fiber.StatusOK).JSON(response)
 }
