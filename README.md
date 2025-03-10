@@ -54,9 +54,13 @@ go mod tidy
 ```
 Ensure you have air package installed
 ```bash
-air
+go install github.com/air-verse/air@latest
 ```
 
+Run go api with air
+```bash
+air
+```
 
 
 ## Auth Endpoints

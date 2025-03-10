@@ -161,9 +161,11 @@ $$ LANGUAGE plpgsql;
 ------------------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS "tb_files"(
     "id" INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    "original_name" VARCHAR(255) NOT NULL,
     "filename" VARCHAR(255) NOT NULL,
     "type" VARCHAR(50)NOT NULL,
     "url" VARCHAR(255) NOT NULL,
+    "base_url" VARCHAR(255) NOT NULL,
     "status" SMALLINT NOT NULL DEFAULT '1',
     "created_at" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
     "updated_at" TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
