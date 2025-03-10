@@ -6,6 +6,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 	"github.com/mhcodev/fake_store_api/internal/config"
@@ -63,6 +64,7 @@ func main() {
 	app.Use(cors.New(cors.Config{
 		AllowMethods: "GET,POST,PUT,DELETE",
 	}))
+	app.Use(logger.New())
 
 	// Ensure the uploads directory exists
 	os.MkdirAll(UploadDir, os.ModePerm)

@@ -32,7 +32,7 @@ func (fh *FileHandler) UploadLoad(c *fiber.Ctx) error {
 	form, err := c.MultipartForm()
 
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).SendString("Failed to parse form data")
+		return c.Status(fiber.StatusBadRequest).SendString("Failed to parse form data or file")
 	}
 
 	// Get the array of files with the key "images"
